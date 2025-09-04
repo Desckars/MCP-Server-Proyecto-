@@ -13,3 +13,14 @@ Ejecutar:
 mvn clean package
 Y despues:
 mvn spring-boot:run
+
+Probar con Postman peticion a Gemini:
+Metodo:Get
+http://localhost:8081/api/ask-gemini?question=Cual es la capital de Uruguay
+
+Probar con Postman peticion a O3:
+Para esto tener en cuenta que debe estar abierto el servidor de O3
+Metodo:POST
+http://localhost:8081/api/mdx/query
+Body: Raw y elejis Text
+Peticion:SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS, {Customers.Customers.[Major Accounts]} ON ROWS FROM Demo WHERE Measures.Discount
