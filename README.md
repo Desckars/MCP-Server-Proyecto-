@@ -6,7 +6,9 @@ O vas al apartado de Get API Key.
 Ahi hay un boton que dice +crear clave de API y la clave generada es la que ira en ese parte.
 
 Para ejecutar el servidor MCP
-Necesitas tener Node.js
+Necesitas tener Node.js en las variables de entorno del sistema(esto en Windows) asi como
+Maven 
+JDK
 Ejecutar:
 mvn clean package
 Y despues:
