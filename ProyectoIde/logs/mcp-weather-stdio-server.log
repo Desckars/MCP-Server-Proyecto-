@@ -1,16 +1,8 @@
-2025-09-11T08:10:11.540-03:00  INFO 18024 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 18024 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\ProyectoIde)
-2025-09-11T08:10:11.550-03:00  INFO 18024 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2025-09-11T08:10:13.195-03:00  INFO 18024 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
-2025-09-11T08:10:13.269-03:00  INFO 18024 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 4
-2025-09-11T08:10:13.711-03:00  INFO 18024 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
-2025-09-11T08:10:13.713-03:00  INFO 18024 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
-2025-09-11T08:10:13.714-03:00  INFO 18024 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
-2025-09-11T08:10:13.954-03:00  INFO 18024 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Started ProyectoIdeApplicationTests in 2.969 seconds (process running for 4.552)
-2025-09-11T08:14:17.996-03:00  INFO 14344 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 14344 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\ProyectoIde)
-2025-09-11T08:14:17.998-03:00  INFO 14344 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2025-09-11T08:14:19.580-03:00  INFO 14344 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
-2025-09-11T08:14:19.660-03:00  INFO 14344 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 4
-2025-09-11T08:14:19.660-03:00  INFO 14344 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
-2025-09-11T08:14:19.661-03:00  INFO 14344 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
-2025-09-11T08:14:19.662-03:00  INFO 14344 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
-2025-09-11T08:14:19.923-03:00  INFO 14344 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Started ProyectoIdeApplicationTests in 2.541 seconds (process running for 3.996)
+2025-09-12T12:39:41.479-03:00  INFO 17400 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 17400 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\ProyectoIde)
+2025-09-12T12:39:41.487-03:00  INFO 17400 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : No active profile set, falling back to 1 default profile: "default"
+2025-09-12T12:39:43.526-03:00  INFO 17400 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-12T12:39:43.616-03:00  INFO 17400 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 5
+2025-09-12T12:39:43.617-03:00  INFO 17400 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-12T12:39:43.618-03:00  INFO 17400 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-12T12:39:43.619-03:00  INFO 17400 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-12T12:39:43.978-03:00  INFO 17400 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Started ProyectoIdeApplicationTests in 3.208 seconds (process running for 5.165)

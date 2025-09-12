@@ -28,13 +28,6 @@ public class TestDriveO3 {
 	
 	private static boolean testMultiplesMedidas = true;
 	private static boolean testFechas = false;
-    @Tool(description = "Recibe una consulta MDX y devuelve los resultados como una cadena formateada.")
-    public String executeMdxQuery(@ToolParam(description = "Consulta MDX a ejecutar") String mdxQuery) {
-        // Aquí iría la lógica para ejecutar la consulta MDX usando el driver O3
-        // y devolver los resultados como una cadena formateada.
-        // Por ahora, devolvemos una cadena de ejemplo.
-        return "Resultados de la consulta MDX: " + mdxQuery;
-    }
 
     // Probare primer QUERY ya precargadas
      private final SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
@@ -103,5 +96,124 @@ public class TestDriveO3 {
             }
         }
         return queryResults.toString();
+    }
+
+    @Tool(description = "Ejecuta una consulta MDX específica contra el cubo O3 Demo y retorna los resultados formateados. " +
+          "Esta tool está diseñada para ejecutar consultas MDX basadas en solicitudes en lenguaje natural. " +
+          "\n\nESTRUCTURA DEL CUBO DEMO:" +
+          "\n- MEDIDAS DISPONIBLES: Units Sold, Cost, Revenue, Discount, % Profit" +
+          "\n- DIMENSIONES DISPONIBLES:" +
+          "\n  * Customers (jerarquías: Major Accounts, All Customers)" +
+          "\n  * Location (usar Location.children para obtener todas las ubicaciones)" +
+          "\n  * Products (usar Products.children para obtener todos los productos)" +
+          "\n  * Salesmen (usar Salesmen.children para obtener todos los vendedores)" +
+          "\n  * Date (usar Date.children para obtener fechas)" +
+          "\n\nPATRONES DE CONSULTA COMUNES:" +
+          "\n1. Consulta simple por medida: SELECT {Measures.[Units Sold]} ON COLUMNS FROM Demo" +
+          "\n2. Por dimensión: SELECT {Measures.[Units Sold]} ON COLUMNS, {Location.children} ON ROWS FROM Demo" +
+          "\n3. Múltiples medidas: SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS FROM Demo" +
+          "\n4. Con filtro WHERE: SELECT {Measures.[Units Sold]} ON COLUMNS FROM Demo WHERE Measures.Discount" +
+          "\n5. NON EMPTY para omitir valores vacíos: SELECT NON EMPTY {Location.children} ON ROWS FROM Demo" +
+          "\n6. CROSSJOIN para cruzar dimensiones: CROSSJOIN({Salesmen.children}, {Customers.[Major Accounts]})" +
+          "\n7. Info del cubo: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM Demo" +
+          "\n\nEJEMPLOS DE INTERPRETACIÓN:" +
+          "\n- 'mostrar ventas por ubicación' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo" +
+          "\n- 'costos y unidades para cuentas principales' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM Demo" +
+          "\n- 'ingresos por producto' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM Demo")
+    public String executeCustomMdxQuery(@ToolParam(description = "Consulta MDX a ejecutar contra el cubo Demo") String mdxQuery) {
+        try {
+            Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
+            String url = "jdbc:o3:mdx://localhost:7777";
+            Properties info = new Properties();
+            info.put("user", "user");
+            info.put("password", "user");
+            info.put("COLUMNS_TYPE", "DIMENSION_LABEL");
+            info.put("MEMBER_BY_LABEL", "false");
+
+            try (Connection conn = DriverManager.getConnection(url, info)) {
+                return runQuery(conn, mdxQuery, null);
+            }
+        } catch (Exception e) {
+            return "Error ejecutando consulta MDX: " + e.getMessage() + 
+                   "\nConsulta intentada: " + mdxQuery;
+        }
+    }
+    @Tool(description = "Obtiene información sobre los cubos disponibles en el servidor O3, incluyendo sus dimensiones y medidas. " +
+          "Esto es útil para construir consultas MDX apropiadas para cubos específicos.")
+    public String getCubeInformation(@ToolParam(description = "Nombre del cubo a analizar (opcional). Si no se especifica, lista todos los cubos disponibles.") String cubeName) {
+        try {
+            Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
+            String url = "jdbc:o3:mdx://localhost:7777";
+            Properties info = new Properties();
+            info.put("user", "user");
+            info.put("password", "user");
+            info.put("COLUMNS_TYPE", "DIMENSION_LABEL");
+            info.put("MEMBER_BY_LABEL", "false");
+
+            try (Connection conn = DriverManager.getConnection(url, info)) {
+                if (cubeName == null || cubeName.trim().isEmpty()) {
+                    // Listar todos los cubos disponibles
+                    return listAvailableCubes(conn);
+                } else {
+                    // Obtener información específica del cubo
+                    return getCubeStructure(conn, cubeName.trim());
+                }
+            }
+        } catch (Exception e) {
+            return "Error obteniendo información de cubos: " + e.getMessage();
+        }
+    }
+
+    private String listAvailableCubes(Connection conn) {
+        StringJoiner result = new StringJoiner("\n");
+        result.add("=== CUBOS DISPONIBLES ===");
+        
+        try {
+            // Intentar obtener metadatos de cubos (esto puede variar según la implementación de O3)
+            String query = "SELECT {CubeInfo.CubeName} ON COLUMNS FROM $system";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(query)) {
+                
+                while (rs.next()) {
+                    result.add("- " + rs.getString(1));
+                }
+            } catch (SQLException e) {
+                // Si falla la consulta del sistema, mostrar cubos conocidos
+                result.add("- Demo (cubo de ejemplo conocido)");
+                result.add("Nota: No se pudieron obtener todos los cubos del sistema. Error: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            result.add("Error listando cubos: " + e.getMessage());
+        }
+        
+        return result.toString();
+    }
+
+    private String getCubeStructure(Connection conn, String cubeName) {
+        StringJoiner result = new StringJoiner("\n");
+        result.add("=== ESTRUCTURA DEL CUBO: " + cubeName + " ===");
+        
+        try {
+            // Obtener información general del cubo
+            String infoQuery = "SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM [" + cubeName + "]";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(infoQuery)) {
+                
+                if (rs.next()) {
+                    result.add("Última modificación: " + rs.getString(1));
+                }
+            } catch (SQLException e) {
+                result.add("Advertencia: No se pudo obtener información general del cubo");
+            }
+
+            result.add("\nNota: Para obtener dimensiones y medidas específicas, use consultas MDX exploratorias como:");
+            result.add("- Para dimensiones: SELECT NON EMPTY {[NombreDimension].children} ON ROWS FROM [" + cubeName + "]");
+            result.add("- Para medidas: SELECT {Measures.AllMembers} ON COLUMNS FROM [" + cubeName + "]");
+            
+        } catch (Exception e) {
+            result.add("Error analizando cubo " + cubeName + ": " + e.getMessage());
+        }
+        
+        return result.toString();
     }
 }
