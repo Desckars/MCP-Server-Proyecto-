@@ -44,6 +44,7 @@ public class TestDriveO3 {
      * Ejecuta todas las consultas MDX de prueba y retorna un resumen de los resultados.
      * @return Una cadena de texto con la salida de todas las consultas.
      */
+    
     @Tool(description = "Ejecuta todas las consultas MDX de prueba y retorna los resultados de cada una.")
     public String runAllQueries() {
         StringJoiner fullResults = new StringJoiner("\n\n---\n\n");
