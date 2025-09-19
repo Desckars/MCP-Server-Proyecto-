@@ -1,0 +1,16 @@
+2025-09-18T22:32:53.145-03:00  INFO 17248 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 17248 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\ProyectoIde)
+2025-09-18T22:32:53.147-03:00  INFO 17248 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : No active profile set, falling back to 1 default profile: "default"
+2025-09-18T22:32:54.936-03:00  INFO 17248 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-18T22:32:55.020-03:00  INFO 17248 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 5
+2025-09-18T22:32:55.020-03:00  INFO 17248 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-18T22:32:55.021-03:00  INFO 17248 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-18T22:32:55.022-03:00  INFO 17248 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-18T22:32:55.379-03:00  INFO 17248 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Started ProyectoIdeApplicationTests in 2.861 seconds (process running for 5.912)
+2025-09-18T22:38:41.475-03:00  INFO 19936 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 19936 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\ProyectoIde)
+2025-09-18T22:38:41.477-03:00  INFO 19936 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : No active profile set, falling back to 1 default profile: "default"
+2025-09-18T22:38:42.648-03:00  INFO 19936 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-18T22:38:42.727-03:00  INFO 19936 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-18T22:38:42.728-03:00  INFO 19936 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-18T22:38:42.729-03:00  INFO 19936 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-18T22:38:42.731-03:00  INFO 19936 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-18T22:38:43.010-03:00  INFO 19936 --- [ProyectoIde] [main] c.e.P.ProyectoIdeApplicationTests        : Started ProyectoIdeApplicationTests in 2.106 seconds (process running for 3.577)
