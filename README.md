@@ -24,3 +24,19 @@ Metodo:POST
 http://localhost:8081/api/mdx/query
 Body: Raw y elejis Text
 Peticion:SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS, {Customers.Customers.[Major Accounts]} ON ROWS FROM Demo WHERE Measures.Discount
+
+
+Configuracion de Claude Desktop
+{
+  "mcpServers": {
+          "MCP_O3_Server": {
+                "command": "java",
+                "args": [
+                  "-Dspring.ai.mcp.server.stdio=true",
+                  "-Dspring.main.banner-mode=off",
+                  "-jar",
+                  "C:/Users/User/Desktop/Proyecto/MCP-Prueba/ProyectoIde/target/ProyectoIde-0.0.1-SNAPSHOT.jar"
+                ]
+              }
+ }
+}
