@@ -1,0 +1,56 @@
+2025-09-22T18:30:54.147-03:00  INFO 19996 --- [ProyectoIde] [main] c.e.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 19996 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T18:30:54.155-03:00  INFO 19996 --- [ProyectoIde] [main] c.e.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T18:30:55.464-03:00  INFO 19996 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T18:30:55.546-03:00  INFO 19996 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T18:30:55.546-03:00  INFO 19996 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T18:30:55.547-03:00  INFO 19996 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T18:30:55.548-03:00  INFO 19996 --- [ProyectoIde] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T18:30:55.811-03:00  INFO 19996 --- [ProyectoIde] [main] c.e.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.239 seconds (process running for 3.848)
+2025-09-22T18:32:12.146-03:00  INFO 13668 --- [proyecto_mcp_03] [main] c.e.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 13668 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T18:32:12.148-03:00  INFO 13668 --- [proyecto_mcp_03] [main] c.e.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T18:32:13.677-03:00  INFO 13668 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T18:32:13.771-03:00  INFO 13668 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T18:32:13.772-03:00  INFO 13668 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T18:32:13.776-03:00  INFO 13668 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T18:32:13.778-03:00  INFO 13668 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T18:32:14.072-03:00  INFO 13668 --- [proyecto_mcp_03] [main] c.e.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.623 seconds (process running for 4.663)
+2025-09-22T21:07:19.437-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 15548 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T21:07:19.439-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T21:07:20.589-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T21:07:20.677-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T21:07:20.677-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T21:07:20.678-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T21:07:20.679-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T21:07:21.030-03:00  INFO 15548 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.154 seconds (process running for 3.893)
+2025-09-22T21:07:56.547-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 15524 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T21:07:56.550-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T21:07:57.727-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T21:07:57.828-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T21:07:57.829-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T21:07:57.831-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T21:07:57.832-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T21:07:58.277-03:00  INFO 15524 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.291 seconds (process running for 4.177)
+2025-09-22T21:13:25.193-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 1048 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T21:13:25.196-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T21:13:26.464-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T21:13:26.565-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T21:13:26.565-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T21:13:26.566-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T21:13:26.567-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T21:13:26.848-03:00  INFO 1048 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.226 seconds (process running for 3.652)
+2025-09-22T21:16:21.151-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 18084 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T21:16:21.155-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T21:16:22.459-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T21:16:22.565-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T21:16:22.565-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T21:16:22.566-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T21:16:22.567-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T21:16:22.904-03:00  INFO 18084 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.367 seconds (process running for 4.065)
+2025-09-22T21:26:34.282-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Starting ProyectoIdeApplicationTests using Java 22.0.2 with PID 384 (started by User in C:\Users\User\Desktop\Proyecto\MCP-Prueba\mcp_o3)
+2025-09-22T21:26:34.284-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2025-09-22T21:26:35.702-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable tools capabilities, notification: true
+2025-09-22T21:26:35.796-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Registered tools: 3
+2025-09-22T21:26:35.796-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable resources capabilities, notification: true
+2025-09-22T21:26:35.797-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable prompts capabilities, notification: true
+2025-09-22T21:26:35.798-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.s.a.m.s.a.McpServerAutoConfiguration   : Enable completions capabilities
+2025-09-22T21:26:36.127-03:00  INFO 384 --- [proyecto_mcp_03] [main] o.u.mcp_o3.ProyectoIdeApplicationTests   : Started ProyectoIdeApplicationTests in 2.446 seconds (process running for 3.957)
