@@ -32,7 +32,7 @@ public class TestThinDriver {
 
 
 	private  static String[] queries = {
-		"SELECT {Measures.Members} ON COLUMNS FROM BodegaStock"
+		"SELECT {Dimensions} ON COLUMNS FROM [Demo]"
 		 /*"SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS, {Customers.Customers.[Major Accounts]} ON ROWS FROM Demo WHERE Measures.Discount" ,
 		 "SELECT NON EMPTY {Customers.[Major Accounts]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo WHERE Measures.[Units Sold]",
 
