@@ -99,19 +99,23 @@ public class TestDriveO3 {
         return queryResults.toString();
     }
 
-    @Tool(description = "Ejecuta una consulta MDX específica contra el cubo O3 Demo y retorna los resultados formateados. " +
-          "\n\nPATRONES DE CONSULTA COMUNES:" +
-          "\n1. Consulta simple por medida: SELECT {Measures.[Units Sold]} ON COLUMNS FROM Demo" +
-          "\n2. Por dimensión: SELECT {Measures.[Units Sold]} ON COLUMNS, {Location.children} ON ROWS FROM Demo" +
-          "\n3. Múltiples medidas: SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS FROM Demo" +
-          "\n4. Con filtro WHERE: SELECT {Measures.[Units Sold]} ON COLUMNS FROM Demo WHERE Measures.Discount" +
-          "\n5. NON EMPTY para omitir valores vacíos: SELECT NON EMPTY {Location.children} ON ROWS FROM Demo" +
-          "\n6. CROSSJOIN para cruzar dimensiones: CROSSJOIN({Salesmen.children}, {Customers.[Major Accounts]})" +
-          "\n7. Info del cubo: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM Demo" +
-          "\n\nEJEMPLOS DE INTERPRETACIÓN:" +
-          "\n- 'mostrar ventas por ubicación' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo" +
-          "\n- 'costos y unidades para cuentas principales' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM Demo" +
-          "\n- 'ingresos por producto' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM Demo")
+    @Tool(description = """
+    Ejecuta una consulta MDX específica contra el cubo O3 Demo y retorna los resultados formateados.
+    
+    PATRONES DE CONSULTA COMUNES:
+    1. Consulta simple por medida: SELECT {Measures.[Units Sold]} ON COLUMNS FROM Demo
+    2. Por dimensión: SELECT {Measures.[Units Sold]} ON COLUMNS, {Location.children} ON ROWS FROM Demo
+    3. Múltiples medidas: SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS FROM Demo
+    4. Con filtro WHERE: SELECT {Measures.[Units Sold]} ON COLUMNS FROM Demo WHERE Measures.Discount
+    5. NON EMPTY para omitir valores vacíos: SELECT NON EMPTY {Location.children} ON ROWS FROM Demo
+    6. CROSSJOIN para cruzar dimensiones: CROSSJOIN({Salesmen.children}, {Customers.[Major Accounts]})
+    7. Info del cubo: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM Demo
+    
+    EJEMPLOS DE INTERPRETACIÓN:
+    - 'mostrar ventas por ubicación' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo
+    - 'costos y unidades para cuentas principales' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM Demo
+    - 'ingresos por producto' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM Demo
+    """)
     public String executeCustomMdxQuery(@ToolParam(description = "Consulta MDX a ejecutar contra el cubo Demo") String mdxQuery) {
         try {
             Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
