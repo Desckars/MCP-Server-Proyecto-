@@ -32,21 +32,8 @@ public class TestThinDriver {
 
 
 	private  static String[] queries = {
-		"SELECT {Dimensions} ON COLUMNS FROM [Demo]"
-		 /*"SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS, {Customers.Customers.[Major Accounts]} ON ROWS FROM Demo WHERE Measures.Discount" ,
-		 "SELECT NON EMPTY {Customers.[Major Accounts]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo WHERE Measures.[Units Sold]",
-
-			"SELECT {CubeInfo.LastModifiedDate} ON COLUMNS from Demo",
-		"SELECT " +
-				"NON ZERO {Location.children} ON ROWS, " +
-				"CROSSJOIN ({Salesmen.children}, {Customers.[Major Accounts]}) ON COLUMNS " +
-				"FROM Demo " +
-				"WHERE Measures.[Units Sold]",
-"SELECT CrossJoin({[Date].[Date].children}, {[<measures>].[<measures>].[% Profit], [<measures>].[<measures>].[Revenue]}) ON COLUMNS, {{[Products].[Products].children}} ON ROWS FROM [Demo] WHERE ([Customers].[Customers],[Salesmen].[Salesmen],[Location].[Location])",
-
-
-*/
-
+	
+		"SELECT {Date.[2013], Date.[2014]} ON COLUMNS, CrossJoin({Location.children}, {Products.[Mountain Bikes].children}) ON ROWS FROM Demo WHERE (Measures.[Units Sold])"
 	};
 
 

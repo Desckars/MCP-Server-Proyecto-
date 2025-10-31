@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>o3.utec</groupId>
 	<artifactId>mcp_o3</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>mcp_o3</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
