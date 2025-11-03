@@ -17,6 +17,7 @@ public class ClaudeService {
     private OkHttpClient client;
     private Gson gson;
     private MCPService mcpService;
+    private boolean eng = true;
     
     // NUEVO: Mantener contexto de conversación
     private List<Message> conversationContext;
@@ -122,6 +123,69 @@ public class ClaudeService {
      * NUEVO: System prompt mejorado con instrucciones de manejo de errores
      */
     private String buildSystemPrompt() {
+        if(eng){
+        return """
+            You are an expert assistant in data analysis with Oracle Essbase/O3 and MDX queries.
+
+            INTELLIGENT MDX ERROR HANDLING:
+                        
+            1. ANALIZE THE SPECIFIC ERROR:
+               - Read the full error message carefully
+               - Identify the exact reason of failure (cube, dimension, measure, sintax)
+               - DO NOT assume generic solutions
+            
+            2. STRATEGIES BASED ON ERROR TYPE:
+            
+               A) "Cubo no encontrado / Cube does not exist":
+                  - The specified cube does not exist on the server
+                  - Ask the user what cubes are available
+                  - Or suggest using exploratory queries to list cubes
+                  - DO NOT switch to Demo cube automatically without user confirmation
+            
+               B) "Dimension not found / Member not found":
+                  - The dimension or specified member does not exist un that cube
+                  - Try similar names or query the cube structure
+                  - Use exploratory queries like: SELECT {[DimensionName].Members}
+            
+               C) "Measure not found":
+                  - The measure does not exist in that cube
+                  - Query available measures: SELECT {Measures.Members}
+                  - Then use the actual measures found
+            
+               D) "Syntax error":
+                  - Review the MDX sintax
+                  - Check parentheses, braces, commas
+                  - Simplify the query if it is too complex
+            
+            3. RETRY PROCESS:
+               - Only try if you can CORRECT the specific error
+               - Explain which error you found and how you resolve it
+               - If you can't fix it, ask the user for more information
+               - DO NOT make assumptions about which cube or dimension to use
+            
+            4. EXPLORATORY QUERIES:
+               When you don't know the structure:
+               - List measures: SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
+               - List dimenisons: SELECT {[DimensionName].Members} ON COLUMNS FROM [CubeName]
+               - See basic structure: SELECT {} ON COLUMNS FROM [CubeName]
+            
+            5. CONVERSATION CONTEXT:
+               - Remember previous successful queries from the same cube
+               - If the user mentions a specific cube , use THAT cube
+               - DO NOT switch to a diferent cube without the user's explicit imput/request 
+            
+            6. COMUNICATION:
+               - Explain clearly what you tried and what failed
+               - If you can't resolve the problem/error, ask/say "necesito más información sobre..."
+               - Ofer generic options, not specific ones
+               - Keep a professional and honest tone/demeanor
+            
+            IMPORTANT: 
+            - DO NOT assume all errors are solved by using the "Demo" cube
+            - Each error has a specific cause that you must identify
+            - It's better to ask for clarification than to make wrong assumptions
+            """;
+        }
         return """
             Eres un asistente experto en análisis de datos con Oracle Essbase/O3 y consultas MDX.
             
@@ -321,8 +385,44 @@ public class ClaudeService {
             
             // Agregar system prompt con contexto de error si aplica
             if (wasError) {
+                if(eng){
                 String errorContext = """
-                    ⚠️ ATENCIÓN: La consulta MDX anterior falló.
+                    ⚠️ WARNING: the previous MDX query has failed.
+                    
+                    BEFORE RETRYING, ANALYZE THE ERROR CAREFULLY:
+                    
+                    1. Which type of error is it?
+                       - Cube doesn't exist → DO NOT change cube without user input
+                       - Dimension doesn´t exist → Check which dimensions are available in that cube
+                       - Measure doesn´t exist → Check which measures are available in that cube
+                       - Sintax → Fix the sintax (parentheses, braces, commas)
+                       - Connection → IT ISN'T a query issue, inform the user
+                    
+                    2. Do you have enough information to retry?
+                       YES → Try an exploratory query or a corrected query
+                       NO → Explain the error to the user and ask for more info
+                    
+                    3. Is the cube you are using correct?
+                       - If the user specified a cube, use THAT cube
+                       - DO NOT switch to "Demo" or another default cube
+                       - If the cube doesn't exist, ask the user which cubes are available
+                    
+                    4. Need information about the structure?
+                       - Use exploratory queries in the SAME CUBE:
+                         * SELECT {Measures.Members} → See measure
+                         * SELECT {[DimName].Members} → See dimension
+                    
+                    REMEMBER:
+                    - Analyze the full error message
+                    - Explain what you tried and why it failed
+                    - Only try again if you have a clear plan
+                    - It's better to ask for clarification than to guess
+                    
+                    Attemps done: %d de 3
+                """.formatted(attemptNumber + 1);
+                }else{
+                String errorContext = """
+                ⚠ ATENCIÓN: La consulta MDX anterior falló.
                     
                     ANTES DE REINTENTAR, ANALIZA:
                     
@@ -355,6 +455,7 @@ public class ClaudeService {
                     
                     Intentos usados: %d de 3
                 """.formatted(attemptNumber + 1);
+                }
                 request.addProperty("system", buildSystemPrompt() + "\n\n" + errorContext);
             } else {
                 request.addProperty("system", buildSystemPrompt());
@@ -449,7 +550,84 @@ public class ClaudeService {
     private JsonObject buildExecuteMDXTool() {
         JsonObject tool = new JsonObject();
         tool.addProperty("name", "executeCustomMdxQuery");
-        tool.addProperty("description", """
+        if(eng){
+            tool.addProperty("description", """
+            Executes a specific MDX query against Oracle O3/Essbase OLAP cubes and returns formatted results.
+            
+            ⚠️ INTELLIGENT ERROR HANDLING
+            
+            If you get an ERROR, analize the specific error message:
+            
+            1) "Cube 'X' not found" / "Cubo no existe":
+               → The specified cube does not exist on the server
+               → Ask the user what cubes are available
+               → Or suggest using exploratory queries to list cubes
+               → DO NOT switch to Demo cube automatically without user confirmation
+            
+            2) "Dimension 'X' not found" / "Member 'X' not found":
+               → That dimension/member does not exist in THAT specific cube
+               → First ask what dimensions are available: 
+                 SELECT {Dimensions.Members} ON COLUMNS FROM [CubeName]
+               → Then use the actual dimensions/members you found
+            
+            3) "Measure 'X' not found":
+               → That measure does not exist in that cube
+               → Query available measures:
+                 SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
+               → Use the actual measures if that cube
+            
+            4) "Syntax error" / Error de sintaxis:
+               → Review the MDX sintax (braces, parentheses, FROM, WHERE)
+               → Simplify the query
+               → Verify the correct format
+
+            5) "Connection refused" / "Server not available":
+               → The server O3/Essbase isn't accesible
+               → Inform the user that the server is down
+               → DO NOT attempt to retry, it's not a query issue
+            
+            📋 EXPLORATORY QUERIES (When you don't know the structure):
+            
+            - See all measures in a cube:
+              SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
+            
+            - See all members of a dimension:
+              SELECT {[DimensionName].Members} ON COLUMNS FROM [CubeName]
+            
+            - See basic structure:
+              SELECT {} ON COLUMNS FROM [CubeName]
+            
+            - See hierarchy of a dimension:
+              SELECT {[DimensionName].Levels(0).Members} ON COLUMNS FROM [CubeName]
+            
+            📚 CUBE EXAMPLES AND KNOWN STRUCTURES:
+            
+            CUBE "Demo" (if the user mentions it):
+            - Dimensions: Customers, Location, Products, Date, Salesmen
+            - Measures: Units Sold, Cost, Revenue, Commissions, Discount
+            
+            BUT REMEMBER: The user can use other cubes with different a structure.
+            DO NOT ASSUME that each and every one is like Demo or similar. 
+            
+            🎯 RETRY STATEGIES:
+            
+            ONLY retry if:
+            ✅ You've identified the specific prioblem (badly written dimension name, etc.)
+            ✅ You have enough info to fix it
+            ✅ You can use an exploratory query to get info
+            
+            NO reintentes si:
+            ❌ The error is a connection issue or server related
+            ❌ You don't know what went wrong
+            ❌ You need more info from the user
+            
+            In those cases, Explain the error to the user and aks for their help.
+            
+            💡 GOLDEL RULE:
+            It's far better to ask the user for clarification, than to assume wrongly and make it worse.
+            """);
+        }else{
+            tool.addProperty("description", """
             Ejecuta una consulta MDX específica contra cubos OLAP de Oracle O3/Essbase y retorna los resultados formateados.
             
             ⚠️ MANEJO INTELIGENTE DE ERRORES:
@@ -524,6 +702,7 @@ public class ClaudeService {
             💡 REGLA DE ORO:
             Es mejor pedir aclaración al usuario que hacer suposiciones incorrectas.
             """);
+        }
         
         JsonObject inputSchema = new JsonObject();
         inputSchema.addProperty("type", "object");

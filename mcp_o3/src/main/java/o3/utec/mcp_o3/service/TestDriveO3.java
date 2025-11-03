@@ -99,6 +99,51 @@ public class TestDriveO3 {
 
     //----------------------------------------------------------------------------------------------------------------
     @Tool(description = """
+        Execute a custom MDX query against the O3 cube server and return the results.
+        Use the following guidelines to construct your MDX queries:
+        
+        COOMON MDX QUERY PATTERNS:
+        1. Simple query by measure: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] 
+        2. By dimension: SELECT {Measures.[MeasureName]} ON COLUMNS, {[Dimension].children} ON ROWS FROM [CubeName] 
+        3. Multiple measures: SELECT {Measures.[MeasureName1], Measures.[MeasureName2]} ON COLUMNS FROM [CubeName]
+        4. With WHERE filter: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] WHERE Measures.[MeasureFilter]
+        5. NON EMPTY to amit empty/void variables/values: SELECT NON EMPTY {[Dimension].children} ON ROWS FROM [CubeName]
+        6. CROSSJOIN to cross dimensions: CROSSJOIN({[Dimension1].children}, {[Dimension2].[SpecificMember]})
+        7. Cube info: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM [CubeName]
+
+
+        Interpretention examples (Use these only as a reference for constructing your own queries, do not copy them directly. Use only the cube the user specifies):
+        1 - 'show units sold by location' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM [CubeName]
+        2 - 'costs and units sold by major accounts' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM [CubeName]
+        3 - 'earnings by product' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM [CubeName]
+        4 - 'Units sold in France for client types Major Accounts and Minor Accounts'
+        SELECT {Customers.[Major Accounts], Customers.[Minor Accounts]} ON COLUMNS, {Location.[France]} ON ROWS  FROM  [CubeName] WHERE  (Measures.[Units Sold])
+        5 - 'global vision of each salesman with units sold and commissions earned'
+        SELECT {Measures.[Units Sold], Measures.[Commissions]} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
+        6 - 'revenue for mountain bikes professional in US for years 2002 and 2003'
+        SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE  (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
+        7 - 'show all major accounts in France with units sold'
+       SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM   [CubeName] WHERE  (Measures.[Units Sold])
+        8 - 'children members of salesmen with total number of children'
+        SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
+        9 - 'quey involvs 3 dimensions: products, locations y dates. 3 axis visualizacion is a bit complex and what is generaly requerid is to show this info following a bi-dimensional format encapsuling the 3 dimensions'
+        SELECT {Date.[2001], Date.[2002]} ON COLUMNS, {
+        (Location.[Brazil], Products.[Mountain Bikes].[Professional]),
+        (Location.[Brazil], Products.[Mountain Bikes].[Recreational]),
+        (Location.[Spain], Products.[Mountain Bikes].[Professional]),
+        (Location.[Spain], Products.[Mountain Bikes].[Recreational])
+        } ON ROWS FROM  [CubeName] WHERE (Measures.[Units Sold])
+        10 - 'MDX offers the function CrossJoin(). this function offers every possible combinantion from 2 sets/arrays (in other words "cartesian product"). It's commonly used for situations like the one shown before combining 2+ dimensions in a singular axis in a bi-dimensional matrix format'
+        SELECT {Date.[2001], Date.[2002]} ON COLUMNS, CrossJoin({Location.children}, {Products.[Mountain Bikes].children}) ON ROWS FROM  [CubeName] WHERE (Measures.[Units Sold])
+        11 - 'Let's suppose we want to see the evolution of cost per unit sold across the years except 2002 for every product line'
+        SELECT except(Date.Year.Members, {Date.[2002]}) on COLUMNS, {Products.Line.Members} on ROWS FROM   [CubeName] WHERE  (Measures.[Cost])
+        12 - 'Get all cities in France'
+        SELECT {Location.[France].children} ON COLUMNS, {} ON ROWS FROM [CubeName]
+        13. 'Get all cities accross every location' SELECT {Measures.[Units Sold]} ON COLUMNS, Descendants(Location, Location.City) ON ROWS FROM [CubeName]
+        14.'Return the elements in the first set that arrent present in the second one' SELECT Except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
+        """);
+        /*
+        @Tool(description = """
         Ejecuta una consulta MDX específica contra el cubo O3 y retorna los resultados formateados.
         
         PATRONES DE CONSULTA COMUNES:
@@ -140,7 +185,8 @@ public class TestDriveO3 {
         SELECT {Location.[France].children} ON COLUMNS, {} ON ROWS FROM [CubeName]
         13. 'Obtiene todas las ciudades de todas las ubicaciones.' SELECT {Measures.[Units Sold]} ON COLUMNS, Descendants(Location, Location.City) ON ROWS FROM [CubeName]
         14.'Devuelve los elementos del primer conjunto que NO están en el segundo.' SELECT Except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
-        """)
+        """);
+        */
     public String executeCustomMdxQuery(@ToolParam(description = "Consulta MDX a ejecutar contra el cubo CubeName") String mdxQuery) {
         try {
             Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
