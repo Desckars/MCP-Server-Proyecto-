@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: o3.utec.mcp_o3.ProyectoIdeApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.727 s -- in o3.utec.mcp_o3.ProyectoIdeApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.005 s -- in o3.utec.mcp_o3.ProyectoIdeApplicationTests
