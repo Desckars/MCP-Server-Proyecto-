@@ -42,7 +42,7 @@ public class ChatUI extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(240, 240, 245));
         
-        JLabel titleLabel = new JLabel("🤖 Claude AI + Oracle O3");
+        JLabel titleLabel = new JLabel(" Claude AI + O3");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         topPanel.add(titleLabel, BorderLayout.WEST);
         
@@ -109,7 +109,7 @@ public class ChatUI extends JFrame {
         
         // Mensaje de bienvenida
         appendMessage("Claude", "¡Hola! Soy Claude Sonnet 4 de Anthropic. Puedo ayudarte con consultas generales " +
-                "y también ejecutar consultas MDX sobre cubos Oracle O3. ¿En qué puedo ayudarte hoy?");
+                "y también ejecutar consultas MDX sobre cubos O3. ¿En qué puedo ayudarte hoy?");
     }
     
     private void updateStatusLabel() {

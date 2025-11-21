@@ -558,80 +558,57 @@ public class ClaudeService {
         tool.addProperty("name", "executeCustomMdxQuery");
         if(eng){
             tool.addProperty("description", """
-            Executes a specific MDX query against Oracle O3/Essbase OLAP cubes and returns formatted results.
-            
-            ⚠️ INTELLIGENT ERROR HANDLING
-            
-            If you get an ERROR, analize the specific error message:
-            
-            1) "Cube 'X' not found" / "Cubo no existe":
-               → The specified cube does not exist on the server
-               → Ask the user what cubes are available
-               → Or suggest using exploratory queries to list cubes
-               → DO NOT switch to Demo cube automatically without user confirmation
-            
-            2) "Dimension 'X' not found" / "Member 'X' not found":
-               → That dimension/member does not exist in THAT specific cube
-               → First ask what dimensions are available: 
-                 SELECT {Dimensions.Members} ON COLUMNS FROM [CubeName]
-               → Then use the actual dimensions/members you found
-            
-            3) "Measure 'X' not found":
-               → That measure does not exist in that cube
-               → Query available measures:
-                 SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-               → Use the actual measures if that cube
-            
-            4) "Syntax error" / Error de sintaxis:
-               → Review the MDX sintax (braces, parentheses, FROM, WHERE)
-               → Simplify the query
-               → Verify the correct format
+                Execute a custom MDX query against the O3 cube server and return the results.
+                Use the following guidelines to construct your MDX queries:
 
-            5) "Connection refused" / "Server not available":
-               → The server O3/Essbase isn't accesible
-               → Inform the user that the server is down
-               → DO NOT attempt to retry, it's not a query issue
-            
-            📋 EXPLORATORY QUERIES (When you don't know the structure):
-            
-            - See all measures in a cube:
-              SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-            
-            - See all members of a dimension:
-              SELECT {[DimensionName].Members} ON COLUMNS FROM [CubeName]
-            
-            - See basic structure:
-              SELECT {} ON COLUMNS FROM [CubeName]
-            
-            - See hierarchy of a dimension:
-              SELECT {[DimensionName].Levels(0).Members} ON COLUMNS FROM [CubeName]
-            
-            📚 CUBE EXAMPLES AND KNOWN STRUCTURES:
-            
-            CUBE "Demo" (if the user mentions it):
-            - Dimensions: Customers, Location, Products, Date, Salesmen
-            - Measures: Units Sold, Cost, Revenue, Commissions, Discount
-            
-            BUT REMEMBER: The user can use other cubes with different a structure.
-            DO NOT ASSUME that each and every one is like Demo or similar. 
-            
-            🎯 RETRY STATEGIES:
-            
-            ONLY retry if:
-            ✅ You've identified the specific prioblem (badly written dimension name, etc.)
-            ✅ You have enough info to fix it
-            ✅ You can use an exploratory query to get info
-            
-            NO reintentes si:
-            ❌ The error is a connection issue or server related
-            ❌ You don't know what went wrong
-            ❌ You need more info from the user
-            
-            In those cases, Explain the error to the user and aks for their help.
-            
-            💡 GOLDEL RULE:
-            It's far better to ask the user for clarification, than to assume wrongly and make it worse.
-            """);
+                COOMON MDX QUERY PATTERNS:
+                1. Simple query by measure: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName]
+                2. By dimension: SELECT {Measures.[MeasureName]} ON COLUMNS, {[Dimension].children} ON ROWS FROM [CubeName]
+                3. Multiple measures: SELECT {Measures.[MeasureName1], Measures.[MeasureName2]} ON COLUMNS FROM [CubeName]
+                4. With WHERE filter: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] WHERE Measures.[MeasureFilter]
+                5. NON EMPTY to omit empty/void variables/values: SELECT NON EMPTY {[Dimension].children} ON ROWS FROM [CubeName]
+                6. CROSSJOIN to cross dimensions: CROSSJOIN({[Dimension1].children}, {[Dimension2].[SpecificMember]})
+                7. Cube info: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM [CubeName]
+
+
+                Interpretation examples (Use these only as a reference for constructing your own queries, do not copy them directly. Use only the cube the user specifies):
+                1 - 'show units sold by location' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM [CubeName]
+                2 - 'costs and units sold by major accounts' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM [CubeName]
+                3 - 'earnings by product' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM [CubeName]
+                4 - 'Units sold in France for client types Major Accounts and Minor Accounts'
+                SELECT {Customers.[Major Accounts], Customers.[Minor Accounts]} ON COLUMNS, {Location.[France]} ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+                5 - 'global vision of each salesman with units sold and commissions earned'
+                SELECT {Measures.[Units Sold], Measures.[Commissions]} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
+                6 - 'revenue for mountain bikes professional in US for years 2002 and 2003'
+                SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
+                7 - 'show all major accounts in France with units sold'
+                SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+                8 - 'children members of salesmen with total number of children'
+                SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
+                9 - 'query involves 3 dimensions: products, locations and dates. 3 axis visualization is complex so usually we show a bi-dimensional matrix combining dimensions'
+                SELECT {Date.[2001], Date.[2002]} ON COLUMNS, {
+                    (Location.[Brazil], Products.[Mountain Bikes].[Professional]),
+                    (Location.[Brazil], Products.[Mountain Bikes].[Recreational]),
+                    (Location.[Spain], Products.[Mountain Bikes].[Professional]),
+                    (Location.[Spain], Products.[Mountain Bikes].[Recreational])
+                } ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+                10 - 'MDX CrossJoin returns the cartesian product of two sets'
+                SELECT {Date.[2001], Date.[2002]} ON COLUMNS, CrossJoin({Location.children}, {Products.[Mountain Bikes].children}) ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+                11 - 'evolution of cost per unit sold across years except 2002'
+                SELECT except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
+                12 - 'Get all cities in France'
+                SELECT {Location.[France].children} ON COLUMNS, {} ON ROWS FROM [CubeName]
+                13 - 'Get all cities across every location'
+                SELECT {Measures.[Units Sold]} ON COLUMNS, Descendants(Location, Location.City) ON ROWS FROM [CubeName]
+                14 - 'Return elements in first set not in second'
+                SELECT Except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
+                15 - 'List available cubes on the server'
+                SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
+                16 - 'List dimensions of a cube'
+                SELECT {Dimensions} ON COLUMNS FROM [CubeName]
+                17 - 'List measures of a cube'
+                SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
+                """);
         }else{
             tool.addProperty("description", """
             Ejecuta una consulta MDX específica contra cubos OLAP de Oracle O3/Essbase y retorna los resultados formateados.
