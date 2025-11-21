@@ -376,90 +376,96 @@ public class ClaudeService {
      * MEJORADO: Continua con resultado del tool, permitiendo que Claude reintente SOLO si tiene sentido
      */
     private String continueWithToolResult(JsonObject originalResponse, String toolId, 
-                                         String toolResult, String originalMessage,
-                                         boolean wasError, int attemptNumber) {
+                                        String toolResult, String originalMessage,
+                                        boolean wasError, int attemptNumber) {
         try {
             JsonObject request = new JsonObject();
             request.addProperty("model", config.getModel());
             request.addProperty("max_tokens", config.getMaxTokens());
             
-            // Agregar system prompt con contexto de error si aplica
+            // ✅ Construir el system prompt completo
+            String systemPrompt = buildSystemPrompt();
+            
             if (wasError) {
+                String errorContext;
                 if(eng){
-                String errorContext = """
-                    ⚠️ WARNING: the previous MDX query has failed.
-                    
-                    BEFORE RETRYING, ANALYZE THE ERROR CAREFULLY:
-                    
-                    1. Which type of error is it?
-                       - Cube doesn't exist → DO NOT change cube without user input
-                       - Dimension doesn´t exist → Check which dimensions are available in that cube
-                       - Measure doesn´t exist → Check which measures are available in that cube
-                       - Sintax → Fix the sintax (parentheses, braces, commas)
-                       - Connection → IT ISN'T a query issue, inform the user
-                    
-                    2. Do you have enough information to retry?
-                       YES → Try an exploratory query or a corrected query
-                       NO → Explain the error to the user and ask for more info
-                    
-                    3. Is the cube you are using correct?
-                       - If the user specified a cube, use THAT cube
-                       - DO NOT switch to "Demo" or another default cube
-                       - If the cube doesn't exist, ask the user which cubes are available
-                    
-                    4. Need information about the structure?
-                       - Use exploratory queries in the SAME CUBE:
-                         * SELECT {Measures.Members} → See measure
-                         * SELECT {[DimName].Members} → See dimension
-                    
-                    REMEMBER:
-                    - Analyze the full error message
-                    - Explain what you tried and why it failed
-                    - Only try again if you have a clear plan
-                    - It's better to ask for clarification than to guess
-                    
-                    Attemps done: %d de 3
-                """.formatted(attemptNumber + 1);
-                }else{
-                String errorContext = """
-                ⚠ ATENCIÓN: La consulta MDX anterior falló.
-                    
-                    ANTES DE REINTENTAR, ANALIZA:
-                    
-                    1. ¿Qué tipo de error fue?
-                       - Cubo no existe → NO cambies a otro cubo sin confirmar
-                       - Dimensión no existe → Consulta qué dimensiones tiene ese cubo
-                       - Medida no existe → Consulta qué medidas tiene ese cubo
-                       - Sintaxis → Corrige la sintaxis
-                       - Conexión → NO es problema de tu consulta, informa al usuario
-                    
-                    2. ¿Tienes información suficiente para corregir?
-                       SÍ → Intenta una consulta exploratoria o corregida
-                       NO → Explica al usuario el error y pide más información
-                    
-                    3. ¿Es el cubo correcto?
-                       - Si el usuario pidió un cubo específico, usa ESE cubo
-                       - NO cambies a "Demo" u otro cubo por defecto
-                       - Si el cubo no existe, pregunta qué cubos tiene disponibles
-                    
-                    4. ¿Necesitas información sobre la estructura?
-                       - Usa consultas exploratorias en el MISMO cubo:
-                         * SELECT {Measures.Members} → Ver medidas
-                         * SELECT {[DimName].Members} → Ver dimensión
-                    
-                    RECUERDA:
-                    - Analiza el mensaje de error completo
-                    - Explica qué intentaste y por qué falló
-                    - Solo reintenta si tienes un plan claro
-                    - Es mejor pedir aclaración que adivinar
-                    
-                    Intentos usados: %d de 3
-                """.formatted(attemptNumber + 1);
+                    errorContext = """
+                        ⚠️ WARNING: the previous MDX query has failed.
+                        
+                        BEFORE RETRYING, ANALYZE THE ERROR CAREFULLY:
+                        
+                        1. Which type of error is it?
+                        - Cube doesn't exist → DO NOT change cube without user input
+                        - Dimension doesn´t exist → Check which dimensions are available in that cube
+                        - Measure doesn´t exist → Check which measures are available in that cube
+                        - Sintax → Fix the sintax (parentheses, braces, commas)
+                        - Connection → IT ISN'T a query issue, inform the user
+                        
+                        2. Do you have enough information to retry?
+                        YES → Try an exploratory query or a corrected query
+                        NO → Explain the error to the user and ask for more info
+                        
+                        3. Is the cube you are using correct?
+                        - If the user specified a cube, use THAT cube
+                        - DO NOT switch to "Demo" or another default cube
+                        - If the cube doesn't exist, ask the user which cubes are available
+                        
+                        4. Need information about the structure?
+                        - Use exploratory queries in the SAME CUBE:
+                            * SELECT {Measures.Members} → See measure
+                            * SELECT {[DimName].Members} → See dimension
+                        
+                        REMEMBER:
+                        - Analyze the full error message
+                        - Explain what you tried and why it failed
+                        - Only try again if you have a clear plan
+                        - It's better to ask for clarification than to guess
+                        
+                        Attempts done: %d of 3
+                        """.formatted(attemptNumber + 1);
+                } else {
+                    errorContext = """
+                        ⚠️ ATENCIÓN: La consulta MDX anterior falló.
+                        
+                        ANTES DE REINTENTAR, ANALIZA:
+                        
+                        1. ¿Qué tipo de error fue?
+                        - Cubo no existe → NO cambies a otro cubo sin confirmar
+                        - Dimensión no existe → Consulta qué dimensiones tiene ese cubo
+                        - Medida no existe → Consulta qué medidas tiene ese cubo
+                        - Sintaxis → Corrige la sintaxis
+                        - Conexión → NO es problema de tu consulta, informa al usuario
+                        
+                        2. ¿Tienes información suficiente para corregir?
+                        SÍ → Intenta una consulta exploratoria o corregida
+                        NO → Explica al usuario el error y pide más información
+                        
+                        3. ¿Es el cubo correcto?
+                        - Si el usuario pidió un cubo específico, usa ESE cubo
+                        - NO cambies a "Demo" u otro cubo por defecto
+                        - Si el cubo no existe, pregunta qué cubos tiene disponibles
+                        
+                        4. ¿Necesitas información sobre la estructura?
+                        - Usa consultas exploratorias en el MISMO cubo:
+                            * SELECT {Measures.Members} → Ver medidas
+                            * SELECT {[DimName].Members} → Ver dimensión
+                        
+                        RECUERDA:
+                        - Analiza el mensaje de error completo
+                        - Explica qué intentaste y por qué falló
+                        - Solo reintenta si tienes un plan claro
+                        - Es mejor pedir aclaración que adivinar
+                        
+                        Intentos usados: %d de 3
+                        """.formatted(attemptNumber + 1);
                 }
-                request.addProperty("system", buildSystemPrompt() + "\n\n" + errorContext);
-            } else {
-                request.addProperty("system", buildSystemPrompt());
+                
+                // Agregar el contexto de error al system prompt
+                systemPrompt = systemPrompt + "\n\n" + errorContext;
             }
+            
+            // ✅ Ahora sí podemos usar systemPrompt sin problemas de scope
+            request.addProperty("system", systemPrompt);
             
             JsonArray messages = new JsonArray();
             

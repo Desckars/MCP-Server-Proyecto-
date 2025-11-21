@@ -152,19 +152,3 @@ start.bat
 ```
 
 ---
-
-## 📝 Monitoreo:
-
-Cuando uses el chatbot, observa la **consola** para ver:
-```
-🔧 Claude quiere usar tool: executeCustomMdxQuery
-📝 Con parámetros: {...}
-📊 Ejecutando MDX: SELECT...
-✅ Resultado del tool obtenido
-```
-
-Si se detiene en algún punto, ese es donde falla.
-
----
-
-¿Quieres que implemente un **límite de tools calls por conversación** para prevenir congelamientos? 🛡️

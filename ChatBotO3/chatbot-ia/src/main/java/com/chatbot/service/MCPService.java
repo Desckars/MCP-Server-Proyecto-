@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 public class MCPService {
 
+    private final Object writeLock = new Object();
+
     private static final Logger log = LoggerFactory.getLogger(MCPService.class);
     private static final int MAX_RETRIES = 3;
     private static final long RETRY_DELAY = 1000; // 1 segundo
@@ -28,54 +30,73 @@ public class MCPService {
     private int requestId = 0;
 
     private String sendRequest(JsonObject request) throws IOException {
-    int attempts = 0;
-    while (attempts < MAX_RETRIES) {
-        try {
-            String requestStr = gson.toJson(request);
-            log.debug("→ Enviando: {}", requestStr);
-            
-            synchronized (mcpWriter) {
-                mcpWriter.write(requestStr);
-                mcpWriter.newLine();
-                mcpWriter.flush();
-                
+        int attempts = 0;
+        while (attempts < MAX_RETRIES) {
+            try {
+                // Validar streams
+                if (mcpWriter == null || mcpReader == null) {
+                    log.warn("mcpWriter/mcpReader aún no inicializados, intentando reinicializar...");
+                    reinitializeConnection();
+                }
+
+                String requestStr = gson.toJson(request);
+                log.debug("→ Enviando: {}", requestStr);
+
+                synchronized (writeLock) {
+                    if (mcpWriter == null) { // doble check
+                        throw new IOException("mcpWriter no disponible tras reintento");
+                    }
+                    mcpWriter.write(requestStr);
+                    mcpWriter.newLine();
+                    mcpWriter.flush();
+                }
+
                 // Leer hasta encontrar respuesta JSON válida
                 String line;
                 while ((line = mcpReader.readLine()) != null) {
                     if (line.trim().startsWith("{")) {
-                        log.debug("← Recibido: {}", 
-                            line.substring(0, Math.min(200, line.length())) + "...");
+                        log.debug("← Recibido: {}", line.substring(0, Math.min(200, line.length())) + "...");
                         return line;
                     } else {
                         log.debug("Ignorando línea no-JSON: {}", line);
                     }
                 }
+
+                // Si llegamos acá, no leímos línea válida: reintentar
+                attempts++;
+                Thread.sleep(RETRY_DELAY);
+
+            } catch (IOException e) {
+                log.error("Error en intento #{}: {}", attempts + 1, e.getMessage());
+                attempts++;
+                if (attempts >= MAX_RETRIES) {
+                    throw e;
+                }
+                try {
+                    reinitializeConnection();
+                } catch (RuntimeException re) {
+                    log.error("No se pudo reestablecer conexión: {}", re.getMessage());
+                    throw new IOException("No se pudo reestablecer conexión", re);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Operación interrumpida", e);
             }
-            
-            attempts++;
-            Thread.sleep(RETRY_DELAY);
-            
-        } catch (IOException e) {
-            log.error("Error en intento #{}: {}", attempts + 1, e.getMessage());
-            if (attempts >= MAX_RETRIES - 1) {
-                throw e;
-            }
-            reinitializeConnection();
-            attempts++;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Operación interrumpida", e);
         }
+        throw new IOException("No se pudo obtener respuesta JSON válida después de " + MAX_RETRIES + " intentos");
     }
-    throw new IOException("No se pudo obtener respuesta JSON válida después de " + MAX_RETRIES + " intentos");
-}
     
     private boolean isWriterValid() {
-        try {
-            mcpWriter.write("");
-            return true;
-        } catch (IOException e) {
-            return false;
+        if (mcpWriter == null) return false;
+        synchronized (writeLock) {
+            try {
+                mcpWriter.write(""); // intento no intrusivo
+                mcpWriter.flush();
+                return true;
+            } catch (IOException e) {
+                log.warn("isWriterValid: escritura fallida: {}", e.getMessage());
+                return false;
+            }
         }
     }
     private boolean verifyConnection() {
@@ -125,9 +146,15 @@ private void initializeConnections() throws IOException {
     
     private void closeConnections() {
         try {
-            if (mcpWriter != null) mcpWriter.close();
-            if (mcpReader != null) mcpReader.close();
-        } catch (IOException e) {
+            if (mcpWriter != null) {
+                try { mcpWriter.close(); } catch (IOException ignored) {}
+                mcpWriter = null;
+            }
+            if (mcpReader != null) {
+                try { mcpReader.close(); } catch (IOException ignored) {}
+                mcpReader = null;
+            }
+        } catch (Exception e) {
             log.error("Error cerrando conexiones: " + e.getMessage());
         }
     }
@@ -147,23 +174,76 @@ private void initializeConnections() throws IOException {
         System.out.println("========================================");
         
         try {
-            File jarFile = new File(config.getJarPath());
-            if (!jarFile.exists()) {
-                System.err.println("❌ JAR del MCP no encontrado: " + config.getJarPath());
+            File jarFile;
+            String jarPath = config.getJarPath(); // "mcp/mcp_o3-0.0.4-SNAPSHOT.jar"
+            
+            // Intentar cargar desde resources
+            System.out.println("📦 Extrayendo JAR desde resources...");
+            System.out.println("   Buscando: " + jarPath);
+            
+            InputStream jarStream = getClass().getClassLoader()
+                .getResourceAsStream(jarPath);
+            
+            if (jarStream == null) {
+                System.err.println("❌ JAR no encontrado en resources: " + jarPath);
+                System.err.println("   Ubicación esperada: src/main/resources/" + jarPath);
                 return false;
+            }
+            
+            // Crear archivo temporal
+            jarFile = File.createTempFile("mcp_o3_", ".jar");
+            jarFile.deleteOnExit();
+            
+            // Copiar desde resources al archivo temporal
+            try (FileOutputStream out = new FileOutputStream(jarFile)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = jarStream.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            }
+            jarStream.close();
+            
+            System.out.println("✅ JAR extraído a: " + jarFile.getAbsolutePath());
+            
+            // Working directory - CRÍTICO para que el MCP encuentre su config.properties
+            String workingDirPath = config.getWorkingDirectory();
+            File workingDir = new File(workingDirPath);
+            
+            if (!workingDir.exists() || !workingDir.isDirectory()) {
+                System.err.println("❌ Working directory no existe: " + workingDir.getAbsolutePath());
+                System.err.println("   El MCP necesita este directorio para encontrar su configuración");
+                return false;
+            }
+            
+            System.out.println("✅ Working Dir: " + workingDir.getAbsolutePath());
+            
+            // Verificar que exista config.properties en el working dir
+            File mcpConfig = new File(workingDir, "config.properties");
+            if (!mcpConfig.exists()) {
+                System.err.println("⚠️  Advertencia: config.properties no encontrado en " + workingDir.getAbsolutePath());
+                System.err.println("   El MCP podría no funcionar correctamente sin su configuración");
+            } else {
+                System.out.println("✅ Config del MCP encontrado: " + mcpConfig.getAbsolutePath());
             }
             
             ProcessBuilder pb = new ProcessBuilder(
                 "java",
+                "-Dspring.ai.mcp.server.stdio=true",
+                "-Dspring.main.banner-mode=off",
+
+                "-Do3.server.url=jdbc:o3:mdx://localhost:7777",
+                "-Do3.server.username=user",
+                "-Do3.server.password=user",
+                "-Do3.server.columnsType=DIMENSION_LABEL",
+                "-Do3.server.memberByLabel=true",
+
                 "-jar",
                 jarFile.getAbsolutePath()
             );
             
-            File workingDir = new File(config.getWorkingDirectory());
-            if (workingDir.exists() && workingDir.isDirectory()) {
-                pb.directory(workingDir);
-            }
-            
+            // CRÍTICO: Establecer el working directory donde está la config del MCP
+            pb.directory(workingDir);
             pb.redirectErrorStream(false);
             
             System.out.println("🚀 Iniciando proceso MCP...");
@@ -172,16 +252,30 @@ private void initializeConnections() throws IOException {
             
             mcpProcess = pb.start();
             
+            // Inicializar streams INMEDIATAMENTE después de iniciar el proceso
             mcpWriter = new BufferedWriter(new OutputStreamWriter(mcpProcess.getOutputStream()));
             mcpReader = new BufferedReader(new InputStreamReader(mcpProcess.getInputStream()));
             
+            // Verificar que el proceso inició correctamente
+            if (!mcpProcess.isAlive()) {
+                System.err.println("❌ El proceso MCP no pudo iniciar");
+                System.err.println("   Verifica que Java esté instalado y en el PATH");
+                return false;
+            }
+            
+            System.out.println("✅ Proceso MCP iniciado (PID: " + mcpProcess.pid() + ")");
+            System.out.println("⏳ Esperando 3 segundos a que el MCP inicie completamente...");
+            
+            Thread.sleep(3000);
+
             // Inicializar la conexión MCP
             if (initializeMCP()) {
                 System.out.println("✅ MCP O3 Server iniciado correctamente");
                 System.out.println("========================================\n");
                 return true;
             } else {
-                System.err.println("❌ Error inicializando MCP");
+                System.err.println("❌ Error inicializando protocolo MCP");
+                System.err.println("   El proceso está corriendo pero no responde al protocolo");
                 stop();
                 return false;
             }
@@ -189,6 +283,10 @@ private void initializeConnections() throws IOException {
         } catch (IOException e) {
             System.err.println("❌ Error iniciando MCP: " + e.getMessage());
             e.printStackTrace();
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("❌ Proceso interrumpido");
             return false;
         }
     }
@@ -211,9 +309,29 @@ private void initializeConnections() throws IOException {
             
             initRequest.add("params", params);
             
-            String response = sendRequest(initRequest);
+            System.out.println("⏳ Esperando respuesta del MCP (timeout: 10s)...");
             
-            if (response != null && response.contains("\"result\"")) {
+            // ✅ AGREGAR TIMEOUT
+            long startTime = System.currentTimeMillis();
+            long timeout = 10000; // 10 segundos
+            
+            String response = null;
+            while (response == null && (System.currentTimeMillis() - startTime) < timeout) {
+                try {
+                    response = sendRequest(initRequest);
+                } catch (IOException e) {
+                    System.err.println("⚠️  Esperando conexión MCP...");
+                    Thread.sleep(1000);
+                }
+            }
+            
+            if (response == null) {
+                System.err.println("❌ Timeout esperando respuesta del MCP");
+                return false;
+            }
+            
+            if (response.contains("\"result\"")) {
+                System.out.println("✅ MCP respondió correctamente");
                 // Enviar initialized notification
                 JsonObject notification = new JsonObject();
                 notification.addProperty("jsonrpc", "2.0");
@@ -227,6 +345,7 @@ private void initializeConnections() throws IOException {
             
         } catch (Exception e) {
             System.err.println("Error en initializeMCP: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -312,10 +431,15 @@ private void initializeConnections() throws IOException {
     
     
     private void sendNotification(JsonObject notification) throws IOException {
+        if (mcpWriter == null) {
+            throw new IOException("mcpWriter no inicializado para enviar notificación");
+        }
         String notificationStr = gson.toJson(notification);
-        mcpWriter.write(notificationStr);
-        mcpWriter.newLine();
-        mcpWriter.flush();
+        synchronized (writeLock) {
+            mcpWriter.write(notificationStr);
+            mcpWriter.newLine();
+            mcpWriter.flush();
+        }
     }
     
     private String parseToolResponse(String response) {

@@ -56,8 +56,8 @@ public class MCPConfig {
     
     private void setDefaults() {
         this.enabled = true;
-        this.jarPath = "../mcp_o3/target/mcp_o3-0.0.3-SNAPSHOT.jar";
-        this.workingDirectory = "../mcp_o3";
+        this.jarPath = "mcp/mcp_o3-0.0.4-SNAPSHOT.jar";
+        this.workingDirectory = ".";
     }
     
     public boolean isEnabled() { return enabled; }

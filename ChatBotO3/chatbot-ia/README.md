@@ -1,6 +1,6 @@
 # ChatBot IA - Claude Sonnet 4 + MCP O3
 
-ChatBot inteligente que integra **Claude Sonnet 4** de Anthropic con consultas MDX sobre cubos **Oracle Essbase O3** usando el protocolo **Model Context Protocol (MCP)**.
+ChatBot inteligente que integra **Claude Sonnet 4** de Anthropic con consultas MDX sobre cubos usando el protocolo **Model Context Protocol (MCP)**.
 
 ## 🎯 Características
 
@@ -21,23 +21,17 @@ ChatBot inteligente que integra **Claude Sonnet 4** de Anthropic con consultas M
 
 ### API Key de Anthropic
 1. Regístrate en https://console.anthropic.com/
-2. Obtén $5 USD en créditos gratuitos
-3. Genera tu API key en la sección "API Keys"
+2. Genera tu API key en la sección "API Keys"
 
 ## 🚀 Instalación Rápida
 
-### Paso 1: Limpiar Archivos Obsoletos
-```bash
-cleanup.bat
-```
-
-### Paso 2: Configurar API Key
+### Paso 1: Configurar API Key
 Edita `src/main/resources/config.properties` con tu API key:
 ```properties
 anthropic.api-key=sk-ant-api03-TU_KEY_AQUI
 ```
 
-### Paso 3: Compilar
+### Paso 2: Compilar
 ```bash
 mvn clean compile
 ```
@@ -117,7 +111,6 @@ chatbot-ia/
 │       └── ConsoleUI.java         ✅ Interfaz consola
 ├── config.properties              ✅ Configuración
 ├── pom.xml                        ✅ Maven
-├── cleanup.bat                    ✅ Limpieza
 └── start.bat                      ✅ Inicio rápido
 ```
 
@@ -142,17 +135,11 @@ mcp.o3.working-directory=D:/MCP_PRUEBA/mcp_o3
 - Verifica `config.properties`
 - La key debe empezar con `sk-ant-api03-`
 
-### Error: "No se pudo conectar al MCP"
-```bash
-cd ..\mcp_o3
-mvn clean package
-```
-
 ### Consultas MDX fallan
 - Verifica que O3 esté corriendo en localhost:7777
 - Revisa logs del MCP: `mcp_o3/logs/MCP_O3_Server.log`
 
-## 💰 Costos (con $5 USD gratuitos)
+## 💰 Costos (con $5 USD )
 
 | Actividad | Costo | Cantidad con $5 |
 |-----------|-------|-----------------|
@@ -175,4 +162,3 @@ mvn clean package
 
 ---
 
-**¡Disfruta conversando con Claude! 🚀**

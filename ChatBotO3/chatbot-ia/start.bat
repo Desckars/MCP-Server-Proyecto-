@@ -55,12 +55,14 @@ if errorlevel 1 (
 echo [5/5] Compilacion exitosa
 echo.
 
-REM Verificar MCP
-if not exist "..\mcp_o3\target\mcp_o3-0.0.3-SNAPSHOT.jar" (
-    echo [ADVERTENCIA] MCP O3 no encontrado
-    echo Las consultas MDX no funcionaran
-    echo Compila con: cd ..\mcp_o3 ^&^& mvn clean package
+REM Verificar MCP (embebido en resources)
+if not exist "src\main\resources\mcp\mcp_o3-0.0.4-SNAPSHOT.jar" (
+    echo [ADVERTENCIA] MCP O3 no encontrado en resources
+    echo Copia el JAR a: src\main\resources\mcp\
+    echo O compila con: cd ..\mcp_o3 ^&^& mvn clean package
     timeout /t 3 >nul
+) else (
+    echo [INFO] MCP O3 encontrado 
 )
 
 echo.
