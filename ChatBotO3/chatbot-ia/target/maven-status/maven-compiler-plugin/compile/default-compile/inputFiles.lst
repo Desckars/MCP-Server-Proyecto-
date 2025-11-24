@@ -1,10 +1,11 @@
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ClaudeService.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\MCPConfig.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ChatService.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\ClaudeConfig.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\MCPService.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ChatUI.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\Main.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ConsoleUI.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\model\Message.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\AIService.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\model\Message.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\AIService.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ChatUI.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ChatService.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\MCPService.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\ClaudeConfig.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\MCPConfig.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\Main.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ClaudeService.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ConversationLogger.java
+D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ConsoleUI.java

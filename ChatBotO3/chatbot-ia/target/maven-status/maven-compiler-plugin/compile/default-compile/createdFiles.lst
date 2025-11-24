@@ -10,3 +10,4 @@ com\chatbot\service\MCPService.class
 com\chatbot\config\ClaudeConfig.class
 com\chatbot\service\AIService.class
 com\chatbot\ui\ChatUI.class
+com\chatbot\service\ConversationLogger.class

@@ -1,16 +1,19 @@
 package com.chatbot.service;
 
 import com.chatbot.model.Message;
+import com.chatbot.service.ConversationLogger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatService {
     private AIService aiService;
     private List<Message> conversationHistory;
+    private ConversationLogger logger;
     
     public ChatService() {
         this.aiService = new AIService();
         this.conversationHistory = new ArrayList<>();
+        this.logger = ConversationLogger.getInstance();
     }
     
     /**
@@ -21,6 +24,8 @@ public class ChatService {
         // Guardar mensaje del usuario en historial local
         Message userMsg = new Message("USER", userMessage);
         conversationHistory.add(userMsg);
+        // Registrar en el log
+        try { logger.logUser(userMessage); } catch (Exception ignored) {}
         
         // Enviar a AIService (que usa ClaudeService con contexto)
         String aiResponse = aiService.generateResponse(userMessage);
@@ -28,6 +33,7 @@ public class ChatService {
         // Guardar respuesta en historial local
         Message aiMsg = new Message("CLAUDE", aiResponse);
         conversationHistory.add(aiMsg);
+        try { logger.logAssistant("CLAUDE", aiResponse); } catch (Exception ignored) {}
         
         return aiResponse;
     }
