@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+
 public class ClaudeService {
     private ClaudeConfig config;
     private OkHttpClient client;
@@ -352,9 +353,12 @@ public class ClaudeService {
         if ("executeCustomMdxQuery".equals(toolName)) {
             String mdxQuery = input.get("mdxQuery").getAsString();
             System.out.println("📊 Ejecutando MDX: " + mdxQuery);
+            try { ConversationLogger.getInstance().logInfo("Claude solicita ejecutar tool: executeCustomMdxQuery"); } catch (Exception ignored) {}
+            try { ConversationLogger.getInstance().logMCPQuery(mdxQuery); } catch (Exception ignored) {}
             
             try {
                 String result = mcpService.executeQuery(mdxQuery);
+                try { ConversationLogger.getInstance().logMCPResponse(result); } catch (Exception ignored) {}
                 
                 // Si el resultado es muy largo, truncarlo pero indicar que hay más
                 if (result.length() > 4000) {

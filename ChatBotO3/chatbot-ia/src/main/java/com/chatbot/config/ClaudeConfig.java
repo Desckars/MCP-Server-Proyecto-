@@ -1,7 +1,7 @@
 package com.chatbot.config;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.chatbot.security.EncryptionUtil;
+import java.io.*;
 import java.util.Properties;
 
 public class ClaudeConfig {
@@ -9,6 +9,10 @@ public class ClaudeConfig {
     private String apiKey;
     private String model;
     private int maxTokens;
+    private boolean configured = false;
+    
+    // Clave maestra única por instalación
+    private static final String MASTER_KEY = generateMasterKey();
     
     private ClaudeConfig() {
         loadConfiguration();
@@ -21,54 +25,205 @@ public class ClaudeConfig {
         return instance;
     }
     
-    private void loadConfiguration() {
-        Properties props = new Properties();
+    /**
+     * Forzar recarga de configuración (útil después de guardar cambios)
+     */
+    public static void reload() {
+        instance = null;
+        getInstance();
+    }
+    
+    /**
+     * Genera clave maestra única por instalación
+     */
+    private static String generateMasterKey() {
+        String userName = System.getProperty("user.name", "default");
+        String osName = System.getProperty("os.name", "unknown");
+        String javaVersion = System.getProperty("java.version", "unknown");
+        String salt = "ChatBot-IA-O3-MCP-2025";
         
+        return salt + "-" + userName + "-" + osName.hashCode() + "-" + javaVersion.hashCode();
+    }
+    
+    private void loadConfiguration() {
         System.out.println("[Claude Config] Cargando configuración...");
         
+        File configFile = getConfigFile();
+        Properties props = new Properties();
+        
         try {
-            InputStream input = getClass().getClassLoader()
-                .getResourceAsStream("config.properties");
-            
-            if (input == null) {
-                System.err.println("[ERROR] config.properties no encontrado");
+            // Intentar cargar desde archivo
+            if (configFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(configFile)) {
+                    props.load(fis);
+                }
+            } else {
+                System.err.println("⚠️  Archivo config.properties no encontrado");
+                System.err.println("   Ruta esperada: " + configFile.getAbsolutePath());
                 setDefaults();
                 return;
             }
             
-            props.load(input);
-            this.apiKey = props.getProperty("anthropic.api-key");
+            // PRIORIDAD 1: Variable de entorno (para CI/CD)
+            this.apiKey = System.getenv("CLAUDE_API_KEY");
+            
+            // PRIORIDAD 2: API Key encriptado
+            if (this.apiKey == null || this.apiKey.isEmpty()) {
+                String encryptedKey = props.getProperty("anthropic.api-key.encrypted");
+                
+                if (encryptedKey != null && !encryptedKey.isEmpty() && 
+                    EncryptionUtil.isEncrypted(encryptedKey)) {
+                    
+                    System.out.println("🔐 Desencriptando API Key...");
+                    
+                    try {
+                        this.apiKey = EncryptionUtil.decrypt(encryptedKey, MASTER_KEY);
+                        System.out.println("✅ API Key cargado correctamente");
+                    } catch (Exception e) {
+                        System.err.println("❌ Error desencriptando API Key: " + e.getMessage());
+                        System.err.println("   La configuración podría estar corrupta");
+                        this.apiKey = null;
+                    }
+                }
+            }
+            
+            // PRIORIDAD 3: API Key en texto plano (primera vez)
+            if (this.apiKey == null || this.apiKey.isEmpty()) {
+                String plainKey = props.getProperty("anthropic.api-key");
+                
+                if (plainKey != null && !plainKey.isEmpty() && plainKey.startsWith("sk-ant-")) {
+                    System.out.println("🔒 API Key en texto plano detectado");
+                    System.out.println("   Encriptando automáticamente...");
+                    
+                    try {
+                        // Encriptar
+                        String encrypted = EncryptionUtil.encrypt(plainKey, MASTER_KEY);
+                        
+                        // Actualizar properties
+                        props.setProperty("anthropic.api-key.encrypted", encrypted);
+                        props.remove("anthropic.api-key");
+                        
+                        // Guardar
+                        savePropertiesWithComments(configFile, props);
+                        
+                        this.apiKey = plainKey;
+                        System.out.println("✅ API Key encriptado y guardado");
+                        System.out.println("   config.properties actualizado");
+                        
+                    } catch (Exception e) {
+                        System.err.println("⚠️  Error encriptando: " + e.getMessage());
+                        this.apiKey = plainKey; // Usar sin encriptar esta vez
+                    }
+                }
+            }
+            
+            // Cargar resto de configuración
             this.model = props.getProperty("anthropic.model", "claude-sonnet-4-20250514");
             this.maxTokens = Integer.parseInt(
                 props.getProperty("anthropic.max-tokens", "4096")
             );
             
-            input.close();
+            this.configured = (this.apiKey != null && !this.apiKey.isEmpty());
             
-            System.out.println("✓ Configuración Claude cargada");
-            System.out.println("  API Key: " + (this.apiKey != null && !this.apiKey.equals("TU_API_KEY_AQUI") 
-                ? this.apiKey.substring(0, 20) + "..." 
-                : "NO CONFIGURADA"));
-            System.out.println("  Modelo: " + this.model);
-            System.out.println("  Max Tokens: " + this.maxTokens);
+            if (this.configured) {
+                System.out.println("✓ Configuración Claude cargada");
+                System.out.println("  API Key: " + maskApiKey(this.apiKey));
+                System.out.println("  Modelo: " + this.model);
+                System.out.println("  Max Tokens: " + this.maxTokens);
+            } else {
+                System.err.println("❌ API Key no configurado");
+            }
             
         } catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error cargando configuración: " + e.getMessage());
             setDefaults();
         }
     }
     
-    private void setDefaults() {
-        this.apiKey = null;
-        this.model = "claude-sonnet-4-20250514";
-        this.maxTokens = 4096;
+    /**
+     * Obtiene la ruta del archivo config.properties
+     */
+    private File getConfigFile() {
+        // Intentar primero desde resources en el classpath
+        try {
+            String path = getClass().getClassLoader()
+                .getResource("config.properties")
+                .getPath();
+            File file = new File(path);
+            if (file.exists()) {
+                return file;
+            }
+        } catch (Exception e) {
+            // Ignorar, intentar ruta alternativa
+        }
+        
+        // Ruta alternativa (desarrollo)
+        return new File("src/main/resources/config.properties");
     }
     
+    /**
+     * Guarda properties manteniendo comentarios
+     */
+    private void savePropertiesWithComments(File file, Properties props) throws IOException {
+        StringBuilder content = new StringBuilder();
+        
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Actualizar líneas específicas
+                    if (line.trim().startsWith("anthropic.api-key=") && 
+                        !line.trim().startsWith("anthropic.api-key.encrypted=")) {
+                        content.append("# ").append(line).append(" # AUTO-ENCRIPTADO\n");
+                        continue;
+                    } else if (line.trim().startsWith("anthropic.api-key.encrypted=")) {
+                        content.append("anthropic.api-key.encrypted=")
+                               .append(props.getProperty("anthropic.api-key.encrypted"))
+                               .append("\n");
+                        continue;
+                    } else if (line.trim().startsWith("anthropic.model=")) {
+                        content.append("anthropic.model=")
+                               .append(props.getProperty("anthropic.model"))
+                               .append("\n");
+                        continue;
+                    } else if (line.trim().startsWith("anthropic.max-tokens=")) {
+                        content.append("anthropic.max-tokens=")
+                               .append(props.getProperty("anthropic.max-tokens"))
+                               .append("\n");
+                        continue;
+                    }
+                    
+                    content.append(line).append("\n");
+                }
+            }
+        }
+        
+        // Escribir de vuelta
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(content.toString());
+        }
+    }
+    
+    /**
+     * Enmascara el API Key para logging seguro
+     */
+    private String maskApiKey(String key) {
+        if (key == null || key.length() < 12) {
+            return "***";
+        }
+        return key.substring(0, 11) + "...";
+    }
+    
+    private void setDefaults() {
+        this.apiKey = "";
+        this.model = "claude-sonnet-4-20250514";
+        this.maxTokens = 4096;
+        this.configured = false;
+    }
+    
+    // Getters
     public String getApiKey() { return apiKey; }
     public String getModel() { return model; }
     public int getMaxTokens() { return maxTokens; }
-    
-    public boolean isConfigured() {
-        return apiKey != null && !apiKey.isEmpty() && !apiKey.equals("TU_API_KEY_AQUI");
-    }
+    public boolean isConfigured() { return configured; }
 }

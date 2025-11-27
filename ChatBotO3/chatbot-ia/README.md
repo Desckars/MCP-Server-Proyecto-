@@ -162,3 +162,9 @@ mcp.o3.working-directory=D:/MCP_PRUEBA/mcp_o3
 
 ---
 
+chatbot ahora tiene un sistema completo y seguro para manejar el API Key de Claude:
+✅ Encriptación AES-256 automática
+✅ Interfaz gráfica amigable
+✅ Primera configuración obligatoria
+✅ Reconfiguración fácil con botón ⚙️
+✅ Sin edición manual de archivos

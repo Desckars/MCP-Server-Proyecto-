@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import com.chatbot.config.ClaudeConfig;
 
 public class ChatUI extends JFrame {
     private ChatService chatService;
@@ -12,6 +13,7 @@ public class ChatUI extends JFrame {
     private JTextField inputField;
     private JButton sendButton;
     private JButton clearButton;
+    private JButton configButton;
     private JLabel statusLabel;
     
     public ChatUI() {
@@ -38,20 +40,56 @@ public class ChatUI extends JFrame {
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         mainPanel.setBackground(new Color(240, 240, 245));
         
-        // Panel superior con estado
+        // ========================================
+        // PANEL SUPERIOR CON ESTADO Y CONFIG
+        // ========================================
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(240, 240, 245));
         
-        JLabel titleLabel = new JLabel(" Claude AI + O3");
+        JLabel titleLabel = new JLabel("🤖 Claude AI + O3");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         topPanel.add(titleLabel, BorderLayout.WEST);
+        
+        // Panel derecho con estado y botón de configuración
+        JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        topRightPanel.setBackground(new Color(240, 240, 245));
         
         statusLabel = new JLabel();
         updateStatusLabel();
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        topPanel.add(statusLabel, BorderLayout.EAST);
+        topRightPanel.add(statusLabel);
         
-        // Área de chat
+        // Botón de configuración
+        configButton = new JButton("⚙️");
+        configButton.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        configButton.setPreferredSize(new Dimension(45, 30));
+        configButton.setFocusPainted(false);
+        configButton.setBorderPainted(false);
+        configButton.setContentAreaFilled(false);
+        configButton.setToolTipText("Configuración");
+        configButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        configButton.addActionListener(e -> openConfigDialog());
+        
+        // Efecto hover
+        configButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                configButton.setContentAreaFilled(true);
+                configButton.setBackground(new Color(220, 220, 225));
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                configButton.setContentAreaFilled(false);
+            }
+        });
+        
+        topRightPanel.add(configButton);
+        topPanel.add(topRightPanel, BorderLayout.EAST);
+        
+        // ========================================
+        // ÁREA DE CHAT
+        // ========================================
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
@@ -64,7 +102,9 @@ public class ChatUI extends JFrame {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
         
-        // Panel inferior
+        // ========================================
+        // PANEL INFERIOR
+        // ========================================
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
         bottomPanel.setBackground(new Color(240, 240, 245));
         
@@ -100,7 +140,9 @@ public class ChatUI extends JFrame {
         bottomPanel.add(inputField, BorderLayout.CENTER);
         bottomPanel.add(buttonPanel, BorderLayout.EAST);
         
-        // Agregar componentes
+        // ========================================
+        // AGREGAR COMPONENTES
+        // ========================================
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -112,6 +154,9 @@ public class ChatUI extends JFrame {
                 "y también ejecutar consultas MDX sobre cubos O3. ¿En qué puedo ayudarte hoy?");
     }
     
+    /**
+     * Actualiza el label de estado con la info de AI y MCP
+     */
     private void updateStatusLabel() {
         boolean aiActive = chatService.getAIService().isUsingAI();
         boolean mcpActive = chatService.getAIService().isMCPEnabled();
@@ -131,13 +176,56 @@ public class ChatUI extends JFrame {
         }
         
         statusLabel.setText(status.toString());
-        statusLabel.setForeground(aiActive ? new Color(0, 128, 0) : new Color(200, 0, 0));
+        
+        // Cambiar color según estado
+        if (aiActive) {
+            statusLabel.setForeground(new Color(0, 150, 0));
+        } else {
+            statusLabel.setForeground(new Color(200, 0, 0));
+        }
     }
     
+    /**
+     * Abre el diálogo de configuración
+     */
+    private void openConfigDialog() {
+        ConfigSetupUI configDialog = new ConfigSetupUI(this);
+        configDialog.setVisible(true);
+        
+        if (configDialog.isConfigSaved()) {
+            // Recargar configuración
+            ClaudeConfig.reload();
+            
+            // Reiniciar el servicio de chat con la nueva configuración
+            chatService.shutdown();
+            chatService = new ChatService();
+            
+            // Actualizar el estado visual
+            updateStatusLabel();
+            
+            // Notificar al usuario
+            appendMessage("SISTEMA", "✅ Configuración actualizada correctamente. " +
+                "Los cambios se han aplicado. Puedes continuar usando el chatbot.");
+            
+            // Limpiar historial para evitar confusiones
+            chatService.clearHistory();
+        }
+    }
+    
+    /**
+     * Envía un mensaje al chatbot
+     */
     private void sendMessage() {
         String message = inputField.getText().trim();
         
         if (message.isEmpty()) {
+            return;
+        }
+        
+        // Verificar si hay API Key configurado
+        if (!chatService.getAIService().isUsingAI()) {
+            appendMessage("SISTEMA", "⚠️ No hay API Key configurado. Haz clic en ⚙️ para configurarlo.");
+            inputField.setText("");
             return;
         }
         
@@ -161,7 +249,7 @@ public class ChatUI extends JFrame {
                     appendMessage("Claude", response);
                     updateStatusLabel(); // Actualizar estado por si MCP se activó
                 } catch (Exception e) {
-                    appendMessage("SISTEMA", "Error: " + e.getMessage());
+                    appendMessage("SISTEMA", "❌ Error: " + e.getMessage());
                     e.printStackTrace();
                 } finally {
                     inputField.setEnabled(true);
@@ -175,20 +263,37 @@ public class ChatUI extends JFrame {
         worker.execute();
     }
     
+    /**
+     * Agrega un mensaje al área de chat
+     */
     private void appendMessage(String sender, String content) {
         String timestamp = java.time.LocalTime.now().format(
             java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")
         );
-        chatArea.append(String.format("[%s] %s:\n%s\n\n", timestamp, sender, content));
+        
+        // Formato especial para mensajes del sistema
+        if (sender.equals("SISTEMA")) {
+            chatArea.append(String.format("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"));
+            chatArea.append(String.format("[%s] %s\n", timestamp, content));
+            chatArea.append(String.format("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"));
+        } else {
+            chatArea.append(String.format("[%s] %s:\n%s\n\n", timestamp, sender, content));
+        }
+        
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
     
+    /**
+     * Limpia el chat
+     */
     private void clearChat() {
         int option = JOptionPane.showConfirmDialog(
             this,
-            "¿Estás seguro de que deseas limpiar el chat?",
-            "Confirmar",
-            JOptionPane.YES_NO_OPTION
+            "¿Estás seguro de que deseas limpiar el chat?\n" +
+            "Se borrará todo el historial de conversación.",
+            "Confirmar Limpieza",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
         );
         
         if (option == JOptionPane.YES_OPTION) {

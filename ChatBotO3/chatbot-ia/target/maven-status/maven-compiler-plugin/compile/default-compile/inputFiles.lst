@@ -1,10 +1,13 @@
 C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ClaudeService.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\MCPConfig.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ChatService.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ConversationLogger.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\security\EncryptionUtil.java
 C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\ClaudeConfig.java
 C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\MCPService.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ConsoleUI.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\AIService.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\config\MCPConfig.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\ChatService.java
 C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ChatUI.java
 C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\Main.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ConsoleUI.java
 C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\model\Message.java
-C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\service\AIService.java
+C:\Users\User\Desktop\Proyecto\MCP-Prueba\ChatBotO3\chatbot-ia\src\main\java\com\chatbot\ui\ConfigSetupUI.java
