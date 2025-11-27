@@ -11,7 +11,7 @@ import java.util.Properties;
 
 /**
  * Ventana de configuración inicial para gestionar el API Key
- * Se integra con el sistema de encriptación existente
+ * Diseño moderno y profesional
  */
 public class ConfigSetupUI extends JDialog {
     
@@ -27,8 +27,19 @@ public class ConfigSetupUI extends JDialog {
     private boolean configSaved = false;
     private boolean isFirstTime;
     
+    // Colores modernos
+    private static final Color PRIMARY_COLOR = new Color(120, 70, 255);
+    private static final Color PRIMARY_HOVER = new Color(100, 50, 235);
+    private static final Color BACKGROUND = new Color(250, 251, 252);
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color TEXT_PRIMARY = new Color(30, 30, 30);
+    private static final Color TEXT_SECONDARY = new Color(100, 100, 100);
+    private static final Color BORDER_COLOR = new Color(230, 232, 236);
+    private static final Color SUCCESS_COLOR = new Color(34, 197, 94);
+    private static final Color ERROR_COLOR = new Color(239, 68, 68);
+    
     public ConfigSetupUI(Frame parent) {
-        super(parent, "⚙️ Configuración de Claude AI", true);
+        super(parent, "Configuración de Claude AI", true);
         
         // Verificar si es primera vez
         this.isFirstTime = !hasExistingConfig();
@@ -39,14 +50,13 @@ public class ConfigSetupUI extends JDialog {
         // Si es primera vez, no permitir cancelar
         if (isFirstTime) {
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-            cancelButton.setEnabled(false);
             
             addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosing(java.awt.event.WindowEvent e) {
                     int option = JOptionPane.showConfirmDialog(
                         ConfigSetupUI.this,
-                        "❗ Necesitas configurar el API Key para usar el chatbot.\n\n¿Deseas salir de la aplicación?",
+                        "Necesitas configurar el API Key para usar el chatbot.\n\n¿Deseas salir de la aplicación?",
                         "Configuración Requerida",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE
@@ -78,71 +88,86 @@ public class ConfigSetupUI extends JDialog {
     }
     
     private void initComponents() {
-        setLayout(new BorderLayout(15, 15));
-        setSize(650, isFirstTime ? 500 : 450);
+        setLayout(new BorderLayout());
+        setSize(700, isFirstTime ? 600 : 550);
         setLocationRelativeTo(getParent());
         setResizable(false);
+        getContentPane().setBackground(BACKGROUND);
         
-        // Panel principal con fondo
+        // Panel principal con scroll
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(new EmptyBorder(25, 30, 25, 30));
-        mainPanel.setBackground(new Color(245, 247, 250));
+        mainPanel.setBackground(BACKGROUND);
+        mainPanel.setBorder(new EmptyBorder(40, 50, 40, 50));
         
         // ========================================
-        // ENCABEZADO
+        // ENCABEZADO CON ICONO
         // ========================================
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-        headerPanel.setBackground(new Color(245, 247, 250));
-        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.setBackground(BACKGROUND);
+        headerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
+        // Icono grande
         JLabel iconLabel = new JLabel("🔐");
-        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 48));
-        iconLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(iconLabel);
-        headerPanel.add(Box.createVerticalStrut(10));
+        headerPanel.add(Box.createVerticalStrut(20));
         
+        // Título
         JLabel titleLabel = new JLabel(isFirstTime ? 
             "Configuración Inicial" : "Actualizar Configuración");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(TEXT_PRIMARY);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(titleLabel);
-        headerPanel.add(Box.createVerticalStrut(8));
+        headerPanel.add(Box.createVerticalStrut(10));
         
+        // Subtítulo
         String infoText = isFirstTime ? 
             "Tu API Key será encriptado automáticamente y guardado de forma segura." :
             "Actualiza tu configuración. Los cambios se aplicarán inmediatamente.";
         
-        infoLabel = new JLabel("<html>" + infoText + "</html>");
-        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        infoLabel.setForeground(new Color(100, 100, 100));
-        infoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoLabel = new JLabel("<html><center>" + infoText + "</center></html>");
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        infoLabel.setForeground(TEXT_SECONDARY);
+        infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(infoLabel);
         
         mainPanel.add(headerPanel);
-        mainPanel.add(Box.createVerticalStrut(20));
+        mainPanel.add(Box.createVerticalStrut(40));
         
         // ========================================
-        // API KEY SECTION
+        // TARJETA DE API KEY
         // ========================================
-        JPanel apiKeyPanel = createStyledPanel("🔑 API Key de Anthropic");
+        JPanel apiKeyCard = createModernCard();
         
-        JPanel apiKeyInputPanel = new JPanel(new BorderLayout(8, 0));
-        apiKeyInputPanel.setBackground(Color.WHITE);
+        JLabel apiKeyTitleLabel = new JLabel("🔑 API Key de Anthropic");
+        apiKeyTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        apiKeyTitleLabel.setForeground(TEXT_PRIMARY);
+        apiKeyCard.add(apiKeyTitleLabel);
+        apiKeyCard.add(Box.createVerticalStrut(12));
+        
+        // Panel para el campo y el botón de mostrar/ocultar
+        JPanel apiKeyInputPanel = new JPanel(new BorderLayout(10, 0));
+        apiKeyInputPanel.setBackground(CARD_BG);
         
         apiKeyField = new JPasswordField();
-        apiKeyField.setFont(new Font("Consolas", Font.PLAIN, 12));
+        apiKeyField.setFont(new Font("Consolas", Font.PLAIN, 13));
         apiKeyField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            BorderFactory.createEmptyBorder(10, 12, 10, 12)
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(12, 15, 12, 15)
         ));
         apiKeyField.setEchoChar('•');
         
+        // Botón mostrar/ocultar con diseño moderno
         showHideButton = new JButton("👁");
-        showHideButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        showHideButton.setPreferredSize(new Dimension(45, 41));
+        showHideButton.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+        showHideButton.setPreferredSize(new Dimension(50, 44));
         showHideButton.setFocusPainted(false);
+        showHideButton.setBorderPainted(false);
+        showHideButton.setBackground(BACKGROUND);
         showHideButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         showHideButton.setToolTipText("Mostrar/Ocultar API Key");
         showHideButton.addActionListener(e -> toggleApiKeyVisibility());
@@ -150,21 +175,27 @@ public class ConfigSetupUI extends JDialog {
         apiKeyInputPanel.add(apiKeyField, BorderLayout.CENTER);
         apiKeyInputPanel.add(showHideButton, BorderLayout.EAST);
         
-        apiKeyPanel.add(apiKeyInputPanel);
+        apiKeyCard.add(apiKeyInputPanel);
+        apiKeyCard.add(Box.createVerticalStrut(8));
         
         JLabel hintLabel = new JLabel("Formato: sk-ant-api03-...");
-        hintLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-        hintLabel.setForeground(new Color(150, 150, 150));
-        hintLabel.setBorder(new EmptyBorder(5, 2, 0, 0));
-        apiKeyPanel.add(hintLabel);
+        hintLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        hintLabel.setForeground(TEXT_SECONDARY);
+        apiKeyCard.add(hintLabel);
         
-        mainPanel.add(apiKeyPanel);
-        mainPanel.add(Box.createVerticalStrut(15));
+        mainPanel.add(apiKeyCard);
+        mainPanel.add(Box.createVerticalStrut(20));
         
         // ========================================
-        // MODELO
+        // TARJETA DE MODELO
         // ========================================
-        JPanel modelPanel = createStyledPanel("🤖 Modelo de Claude");
+        JPanel modelCard = createModernCard();
+        
+        JLabel modelTitleLabel = new JLabel("🤖 Modelo de Claude");
+        modelTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        modelTitleLabel.setForeground(TEXT_PRIMARY);
+        modelCard.add(modelTitleLabel);
+        modelCard.add(Box.createVerticalStrut(12));
         
         String[] models = {
             "claude-sonnet-4-20250514",
@@ -174,75 +205,116 @@ public class ConfigSetupUI extends JDialog {
         modelCombo = new JComboBox<>(models);
         modelCombo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         modelCombo.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(10, 12, 10, 12)
         ));
-        ((JComponent) modelCombo.getRenderer()).setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        modelCombo.setBackground(Color.WHITE);
+        modelCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         
-        modelPanel.add(modelCombo);
+        modelCard.add(modelCombo);
         
-        mainPanel.add(modelPanel);
-        mainPanel.add(Box.createVerticalStrut(15));
+        mainPanel.add(modelCard);
+        mainPanel.add(Box.createVerticalStrut(20));
         
         // ========================================
-        // MAX TOKENS
+        // TARJETA DE MAX TOKENS
         // ========================================
-        JPanel tokensPanel = createStyledPanel("📊 Max Tokens por Respuesta");
+        JPanel tokensCard = createModernCard();
+        
+        JLabel tokensTitleLabel = new JLabel("📊 Max Tokens por Respuesta");
+        tokensTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tokensTitleLabel.setForeground(TEXT_PRIMARY);
+        tokensCard.add(tokensTitleLabel);
+        tokensCard.add(Box.createVerticalStrut(12));
         
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(4096, 1024, 200000, 512);
         maxTokensSpinner = new JSpinner(spinnerModel);
         maxTokensSpinner.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         ((JSpinner.DefaultEditor) maxTokensSpinner.getEditor()).getTextField().setHorizontalAlignment(JTextField.LEFT);
         maxTokensSpinner.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(10, 12, 10, 12)
         ));
+        maxTokensSpinner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         
-        tokensPanel.add(maxTokensSpinner);
+        tokensCard.add(maxTokensSpinner);
         
-        mainPanel.add(tokensPanel);
-        mainPanel.add(Box.createVerticalStrut(20));
+        mainPanel.add(tokensCard);
+        mainPanel.add(Box.createVerticalStrut(25));
         
         // ========================================
         // STATUS LABEL
         // ========================================
         statusLabel = new JLabel(" ");
-        statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        statusLabel.setBorder(new EmptyBorder(0, 5, 10, 0));
+        statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(statusLabel);
+        mainPanel.add(Box.createVerticalStrut(10));
         
-        add(mainPanel, BorderLayout.CENTER);
+        // Scroll pane para el contenido
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
         
         // ========================================
-        // BOTONES
+        // PANEL DE BOTONES
         // ========================================
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 15));
-        buttonPanel.setBackground(new Color(245, 247, 250));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
+        buttonPanel.setBackground(BACKGROUND);
+        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, BORDER_COLOR));
         
-        cancelButton = new JButton("Cancelar");
-        cancelButton.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        cancelButton.setPreferredSize(new Dimension(100, 38));
-        cancelButton.setFocusPainted(false);
-        cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        cancelButton.addActionListener(e -> {
-            configSaved = false;
-            dispose();
-        });
+        if (!isFirstTime) {
+            cancelButton = new JButton("Cancelar");
+            cancelButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            cancelButton.setPreferredSize(new Dimension(120, 42));
+            cancelButton.setFocusPainted(false);
+            cancelButton.setBorderPainted(false);
+            cancelButton.setBackground(BACKGROUND);
+            cancelButton.setForeground(TEXT_SECONDARY);
+            cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            cancelButton.addActionListener(e -> {
+                configSaved = false;
+                dispose();
+            });
+            
+            // Hover effect
+            cancelButton.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    cancelButton.setBackground(BORDER_COLOR);
+                }
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    cancelButton.setBackground(BACKGROUND);
+                }
+            });
+            
+            buttonPanel.add(cancelButton);
+        }
         
         saveButton = new JButton(isFirstTime ? "💾 Guardar y Comenzar" : "💾 Guardar Cambios");
-        saveButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        saveButton.setPreferredSize(new Dimension(isFirstTime ? 180 : 160, 38));
-        saveButton.setBackground(new Color(120, 70, 255));
+        saveButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        saveButton.setPreferredSize(new Dimension(isFirstTime ? 200 : 180, 42));
+        saveButton.setBackground(PRIMARY_COLOR);
         saveButton.setForeground(Color.WHITE);
         saveButton.setFocusPainted(false);
         saveButton.setBorderPainted(false);
         saveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         saveButton.addActionListener(e -> saveConfiguration());
         
-        if (!isFirstTime) {
-            buttonPanel.add(cancelButton);
-        }
+        // Hover effect
+        saveButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (saveButton.isEnabled()) {
+                    saveButton.setBackground(PRIMARY_HOVER);
+                }
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (saveButton.isEnabled()) {
+                    saveButton.setBackground(PRIMARY_COLOR);
+                }
+            }
+        });
+        
         buttonPanel.add(saveButton);
         
         add(buttonPanel, BorderLayout.SOUTH);
@@ -251,24 +323,21 @@ public class ConfigSetupUI extends JDialog {
         apiKeyField.addActionListener(e -> saveConfiguration());
     }
     
-    private JPanel createStyledPanel(String title) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-            new EmptyBorder(15, 15, 15, 15)
+    /**
+     * Crea una tarjeta moderna con sombra
+     */
+    private JPanel createModernCard() {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(CARD_BG);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            new EmptyBorder(20, 20, 20, 20)
         ));
-        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        card.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
         
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
-        panel.add(titleLabel);
-        
-        return panel;
+        return card;
     }
     
     private void toggleApiKeyVisibility() {
@@ -302,7 +371,7 @@ public class ConfigSetupUI extends JDialog {
                     apiKeyField.setText(decrypted);
                 } catch (Exception e) {
                     apiKeyField.setText("");
-                    showStatus("⚠️ No se pudo cargar el API Key existente", Color.ORANGE);
+                    showStatus("⚠️ No se pudo cargar el API Key existente", ERROR_COLOR);
                 }
             }
             
@@ -328,33 +397,28 @@ public class ConfigSetupUI extends JDialog {
         
         // Validar API Key
         if (apiKey.isEmpty()) {
-            showStatus("❌ Debes ingresar un API Key", Color.RED);
+            showStatus("❌ Debes ingresar un API Key", ERROR_COLOR);
             apiKeyField.requestFocus();
             return;
         }
         
         // Validar formato
         if (!apiKey.startsWith("sk-ant-api03-")) {
-            showStatus("❌ Formato inválido. Debe comenzar con: sk-ant-api03-", Color.RED);
+            showStatus("❌ Formato inválido. Debe comenzar con: sk-ant-api03-", ERROR_COLOR);
             apiKeyField.requestFocus();
             return;
         }
         
         if (apiKey.length() < 30) {
-            showStatus("❌ API Key demasiado corto. Verifica que esté completo", Color.RED);
+            showStatus("❌ API Key demasiado corto. Verifica que esté completo", ERROR_COLOR);
             apiKeyField.requestFocus();
             return;
         }
         
         // Deshabilitar controles mientras guarda
-        saveButton.setEnabled(false);
-        cancelButton.setEnabled(false);
-        apiKeyField.setEnabled(false);
-        modelCombo.setEnabled(false);
-        maxTokensSpinner.setEnabled(false);
-        
+        setControlsEnabled(false);
         saveButton.setText("🔐 Encriptando...");
-        showStatus("🔐 Encriptando y guardando configuración...", new Color(0, 120, 215));
+        showStatus("🔐 Encriptando y guardando configuración...", PRIMARY_COLOR);
         
         // Guardar en un worker para no bloquear la UI
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
@@ -401,10 +465,10 @@ public class ConfigSetupUI extends JDialog {
                     boolean success = get();
                     
                     if (success) {
-                        showStatus("✅ Configuración guardada correctamente", new Color(0, 150, 0));
+                        showStatus("✅ Configuración guardada correctamente", SUCCESS_COLOR);
                         
-                        // Esperar 1 segundo y cerrar
-                        Timer timer = new Timer(1000, e -> {
+                        // Esperar 1.5 segundos y cerrar
+                        Timer timer = new Timer(1500, e -> {
                             configSaved = true;
                             
                             // Forzar recarga de configuración
@@ -416,25 +480,30 @@ public class ConfigSetupUI extends JDialog {
                         timer.start();
                         
                     } else {
-                        showStatus("❌ Error: " + (errorMessage != null ? errorMessage : "desconocido"), Color.RED);
-                        
-                        // Rehabilitar controles
-                        saveButton.setEnabled(true);
-                        cancelButton.setEnabled(!isFirstTime);
-                        apiKeyField.setEnabled(true);
-                        modelCombo.setEnabled(true);
-                        maxTokensSpinner.setEnabled(true);
+                        showStatus("❌ Error: " + (errorMessage != null ? errorMessage : "desconocido"), ERROR_COLOR);
+                        setControlsEnabled(true);
                         saveButton.setText(isFirstTime ? "💾 Guardar y Comenzar" : "💾 Guardar Cambios");
                     }
                     
                 } catch (Exception e) {
-                    showStatus("❌ Error inesperado: " + e.getMessage(), Color.RED);
+                    showStatus("❌ Error inesperado: " + e.getMessage(), ERROR_COLOR);
                     e.printStackTrace();
                 }
             }
         };
         
         worker.execute();
+    }
+    
+    private void setControlsEnabled(boolean enabled) {
+        apiKeyField.setEnabled(enabled);
+        modelCombo.setEnabled(enabled);
+        maxTokensSpinner.setEnabled(enabled);
+        showHideButton.setEnabled(enabled);
+        saveButton.setEnabled(enabled);
+        if (cancelButton != null) {
+            cancelButton.setEnabled(enabled);
+        }
     }
     
     private void showStatus(String message, Color color) {

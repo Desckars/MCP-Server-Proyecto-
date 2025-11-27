@@ -1,0 +1,22 @@
+Conversation log - 2025-11-27 18:52:39 UYT
+----------------------------------------
+[2025-11-27 18:53:21] USER: Hola rey lindo, decime que cubos tengo
+[2025-11-27 18:53:28] INFO: Claude solicita ejecutar tool: executeCustomMdxQuery
+[2025-11-27 18:53:28] MCP_QUERY: SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
+[2025-11-27 18:53:29] MCP_RESPONSE: "unique_name | name\nBodega Costos | Bodega Costos\nBodega Forecast | Bodega Forecast\nBodega Movimientos Stock | Bodega Movimientos Stock\nBodega Stock | Bodega Stock\nBodega Ventas | Bodega Ventas\nCotización Dolar | Cotización Dolar\nDemo | Demo\nWines | Wines"
+[2025-11-27 18:53:35] CLAUDE: ¡Perfecto! Tienes los siguientes cubos disponibles en tu servidor:
+
+1. **Bodega Costos** - Costos de bodega
+2. **Bodega Forecast** - Pronósticos de bodega
+3. **Bodega Movimientos Stock** - Movimientos de inventario
+4. **Bodega Stock** - Stock de bodega
+5. **Bodega Ventas** - Ventas de bodega
+6. **Cotización Dolar** - Cotizaciones del dólar
+7. **Demo** - Cubo de demostración
+8. **Wines** - Cubo de vinos
+
+¡Tienes una buena variedad de cubos! Parece que tienes varios relacionados con gestión de bodega, uno para cotizaciones de dólar, y un par de cubos adicionales (Demo y Wines).
+
+¿Con cuál de estos cubos te gustaría trabajar? ¿O necesitas que te ayude a explorar alguno en particular?
+
+--- session closed ---
