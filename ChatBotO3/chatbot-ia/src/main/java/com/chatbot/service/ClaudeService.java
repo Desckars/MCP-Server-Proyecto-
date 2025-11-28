@@ -124,6 +124,10 @@ public class ClaudeService {
      * NUEVO: System prompt mejorado con instrucciones de manejo de errores
      */
     private String buildSystemPrompt() {
+        // Obtener instrucciones de queries exitosas
+        QueryPersistenceService queryService = QueryPersistenceService.getInstance();
+        String successfulExamples = queryService.generateInstructionsFromSuccessfulQueries();
+        
         if(eng){
         return """
             You are an expert assistant in data analysis with Oracle Essbase/O3 and MDX queries.
@@ -185,7 +189,7 @@ public class ClaudeService {
             - DO NOT assume all errors are solved by using the "Demo" cube
             - Each error has a specific cause that you must identify
             - It's better to ask for clarification than to make wrong assumptions
-            """;
+            """ + successfulExamples;
         }
         return """
             Eres un asistente experto en análisis de datos con Oracle Essbase/O3 y consultas MDX.
@@ -198,7 +202,6 @@ public class ClaudeService {
                - NO asumas soluciones genéricas
             
             2. ESTRATEGIAS SEGÚN EL TIPO DE ERROR:
-            
                A) "Cubo no encontrado / Cube does not exist":
                   - El cubo especificado NO existe en el servidor
                   - Pregunta al usuario qué cubos tiene disponibles
@@ -247,7 +250,7 @@ public class ClaudeService {
             - NO asumas que todos los errores se resuelven usando el cubo "Demo"
             - Cada error tiene una causa específica que debes identificar
             - Es mejor pedir aclaración que hacer suposiciones incorrectas
-            """;
+            """+ successfulExamples;
     }
     
     /**

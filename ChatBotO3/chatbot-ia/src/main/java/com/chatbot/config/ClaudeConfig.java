@@ -118,9 +118,9 @@ public class ClaudeConfig {
             }
             
             // Cargar resto de configuración
-            this.model = props.getProperty("anthropic.model", "claude-sonnet-4-20250514");
+            this.model = props.getProperty("anthropic.model", "claude-sonnet-4-20250514").trim();
             this.maxTokens = Integer.parseInt(
-                props.getProperty("anthropic.max-tokens", "4096")
+                props.getProperty("anthropic.max-tokens", "4096").trim()
             );
             
             this.configured = (this.apiKey != null && !this.apiKey.isEmpty());
