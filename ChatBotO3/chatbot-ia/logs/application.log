@@ -1,0 +1,32 @@
+2025-11-30 02:09:19 [main] INFO  com.chatbot.ChatbotIaApplication - Starting ChatbotIaApplication v2.0-SNAPSHOT using Java 22.0.2 with PID 6976 (D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\target\chatbot-ia-2.0-SNAPSHOT.jar started by cedre in D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia)
+2025-11-30 02:09:19 [main] DEBUG com.chatbot.ChatbotIaApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2025-11-30 02:09:19 [main] INFO  com.chatbot.ChatbotIaApplication - No active profile set, falling back to 1 default profile: "default"
+2025-11-30 02:09:27 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-30 02:09:28 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-11-30 02:09:28 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-30 02:09:28 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2025-11-30 02:09:28 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-30 02:09:28 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 8779 ms
+2025-11-30 02:09:34 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page template: index
+2025-11-30 02:09:38 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-11-30 02:09:38 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-11-30 02:09:38 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-11-30 02:09:38 [main] INFO  com.chatbot.ChatbotIaApplication - Started ChatbotIaApplication in 23.528 seconds (process running for 25.959)
+2025-11-30 02:11:28 [main] INFO  com.chatbot.ChatbotIaApplication - Starting ChatbotIaApplication v2.0-SNAPSHOT using Java 22.0.2 with PID 25200 (D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia\target\chatbot-ia-2.0-SNAPSHOT.jar started by cedre in D:\Descargas v2.0\MCP-Server-Proyecto-\ChatBotO3\chatbot-ia)
+2025-11-30 02:11:28 [main] DEBUG com.chatbot.ChatbotIaApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2025-11-30 02:11:28 [main] INFO  com.chatbot.ChatbotIaApplication - No active profile set, falling back to 1 default profile: "default"
+2025-11-30 02:11:34 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-30 02:11:35 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-11-30 02:11:35 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-30 02:11:35 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2025-11-30 02:11:35 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-11-30 02:11:35 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 6853 ms
+2025-11-30 02:11:40 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page template: index
+2025-11-30 02:11:43 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-11-30 02:11:44 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-11-30 02:11:44 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-11-30 02:11:44 [main] INFO  com.chatbot.ChatbotIaApplication - Started ChatbotIaApplication in 19.196 seconds (process running for 23.995)
+2025-11-30 02:17:24 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-30 02:17:27 [http-nio-8080-exec-3] WARN  o.s.web.servlet.PageNotFound - No mapping for GET /favicon.ico
+2025-11-30 02:17:28 [http-nio-8080-exec-3] WARN  o.s.web.servlet.PageNotFound - No endpoint GET /favicon.ico.
+2025-11-30 02:18:43 [SpringApplicationShutdownHook] INFO  o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]

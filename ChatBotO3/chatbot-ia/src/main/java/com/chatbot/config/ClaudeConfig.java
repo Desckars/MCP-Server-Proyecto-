@@ -226,4 +226,43 @@ public class ClaudeConfig {
     public String getModel() { return model; }
     public int getMaxTokens() { return maxTokens; }
     public boolean isConfigured() { return configured; }
+
+    /**
+     * Guarda y encripta la API Key en el archivo de configuración.
+     * Este método actualiza la propiedad `anthropic.api-key.encrypted`.
+     */
+    public synchronized void saveApiKey(String plainKey) throws Exception {
+        if (plainKey == null || plainKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("API Key no puede estar vacía");
+        }
+
+        File configFile = getConfigFile();
+        Properties props = new Properties();
+
+        // Cargar existentes si existen
+        if (configFile.exists()) {
+            try (FileInputStream fis = new FileInputStream(configFile)) {
+                props.load(fis);
+            }
+        }
+
+        // Encriptar usando clave maestra
+        String encrypted = EncryptionUtil.encrypt(plainKey, MASTER_KEY);
+
+        props.setProperty("anthropic.api-key.encrypted", encrypted);
+        props.remove("anthropic.api-key");
+
+        // Asegurar que existan las propiedades de modelo y tokens
+        props.setProperty("anthropic.model", this.model != null ? this.model : "claude-sonnet-4-20250514");
+        props.setProperty("anthropic.max-tokens", String.valueOf(this.maxTokens > 0 ? this.maxTokens : 4096));
+
+        // Guardar de forma segura (manteniendo comentarios donde sea posible)
+        savePropertiesWithComments(configFile, props);
+
+        // Actualizar instancia en memoria
+        this.apiKey = plainKey;
+        this.configured = true;
+
+        System.out.println("✅ API Key guardado y encriptado en: " + configFile.getAbsolutePath());
+    }
 }

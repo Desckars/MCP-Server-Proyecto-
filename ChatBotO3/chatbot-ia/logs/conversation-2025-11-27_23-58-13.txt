@@ -1,5 +1,0 @@
-Conversation log - 2025-11-27 23:58:13 UYT
-----------------------------------------
-[2025-11-27 23:58:26] USER: Que cubos tengo disponibles?
-[2025-11-27 23:58:33] INFO: Claude solicita ejecutar tool: executeCustomMdxQuery
-[2025-11-27 23:58:33] MCP_QUERY: SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
