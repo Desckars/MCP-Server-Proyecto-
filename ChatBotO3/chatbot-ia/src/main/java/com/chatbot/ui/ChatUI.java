@@ -9,14 +9,12 @@ import com.chatbot.config.ClaudeConfig;
 
 public class ChatUI extends JFrame {
     private ChatService chatService;
-    private JPanel chatArea;
+    private JTextArea chatArea;
     private JTextField inputField;
     private JButton sendButton;
     private JButton clearButton;
     private JButton configButton;
     private JLabel statusLabel;
-    private JScrollPane scrollPane;
-    private String lastUserPrompt;
     
     public ChatUI() {
         chatService = new ChatService();
@@ -90,15 +88,18 @@ public class ChatUI extends JFrame {
         topPanel.add(topRightPanel, BorderLayout.EAST);
         
         // ========================================
-        // ÁREA DE CHAT - Panel con scroll
+        // ÁREA DE CHAT 
         // ========================================
-        chatArea = new JPanel();
-        chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        chatArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chatArea.setMargin(new Insets(10, 10, 10, 10));
         chatArea.setBackground(Color.WHITE);
         
-        scrollPane = new JScrollPane(chatArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);        
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
         
         // ========================================
@@ -228,7 +229,6 @@ public class ChatUI extends JFrame {
             return;
         }
         
-        lastUserPrompt = message;  // Guardar el prompt del usuario
         appendMessage("Tú", message);
         inputField.setText("");
         
@@ -249,7 +249,7 @@ public class ChatUI extends JFrame {
                     appendMessage("Claude", response);
                     updateStatusLabel(); // Actualizar estado por si MCP se activó
                 } catch (Exception e) {
-                    appendMessage("SISTEMA", "❌ Error: " + e.getMessage());
+                    appendMessage("SISTEMA", " Error: " + e.getMessage());
                     e.printStackTrace();
                 } finally {
                     inputField.setEnabled(true);
@@ -267,18 +267,19 @@ public class ChatUI extends JFrame {
      * Agrega un mensaje al área de chat
      */
     private void appendMessage(String sender, String content) {
-        MessagePanel messagePanel = new MessagePanel(sender, content, lastUserPrompt);
-        chatArea.add(messagePanel);
-        chatArea.add(Box.createVerticalStrut(5));
+           String timestamp = java.time.LocalTime.now().format(
+            java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")
+        );
         
-        // Forzar que se redibuje y se scroll al final
-        chatArea.revalidate();
-        chatArea.repaint();
-        SwingUtilities.invokeLater(() -> {
-            scrollPane.getVerticalScrollBar().setValue(
-                scrollPane.getVerticalScrollBar().getMaximum()
-            );
-        });
+        // Formato especial para mensajes del sistema
+        if (sender.equals("SISTEMA")) {
+            chatArea.append(String.format("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"));
+            chatArea.append(String.format("[%s] %s\n", timestamp, content));
+            chatArea.append(String.format("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"));
+        } else {
+            chatArea.append(String.format("[%s] %s:\n%s\n\n", timestamp, sender, content));
+        }       
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
     
     /**
@@ -295,9 +296,7 @@ public class ChatUI extends JFrame {
         );
         
         if (option == JOptionPane.YES_OPTION) {
-            chatArea.removeAll();
-            chatArea.revalidate();
-            chatArea.repaint();
+            chatArea.setText("");
             chatService.clearHistory();
             appendMessage("Claude", "Conversación reiniciada. ¿En qué puedo ayudarte?");
         }

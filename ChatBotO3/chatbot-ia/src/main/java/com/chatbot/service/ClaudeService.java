@@ -119,9 +119,6 @@ public class ClaudeService {
     
     // Construye System prompt mejorado con instrucciones de manejo de errores     
     private String buildSystemPrompt() {
-        // Obtener instrucciones de queries exitosas
-        QueryPersistenceService queryService = QueryPersistenceService.getInstance();
-        String successfulExamples = queryService.generateInstructionsFromSuccessfulQueries();
         
         return """
             You are an expert assistant in data analysis with O3 and MDX queries.
