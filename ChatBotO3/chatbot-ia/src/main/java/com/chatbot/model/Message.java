@@ -3,7 +3,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 public class Message {
     
- private String sender; // "USER" o "AI"
+    private String sender; // "USER" o "AI"
     private String content;
     private LocalDateTime timestamp;
     

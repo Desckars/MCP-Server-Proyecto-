@@ -2,62 +2,46 @@ package com.chatbot.service;
 
 import com.chatbot.config.ClaudeConfig;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 public class AIService {
     private ClaudeService claudeService;
     private MCPService mcpService;
     private boolean useAI;
     private boolean mcpEnabled;
-    private Random random;
-    private Map<String, String> responses;
-    
+
+    //Constructor
     public AIService() {
         this.claudeService = new ClaudeService();
         this.mcpService = new MCPService();
-        this.random = new Random();
-        this.responses = new HashMap<>();
-        initializeResponses();
         this.useAI = checkAIAvailability();
         this.mcpEnabled = false;
         
         claudeService.setMCPService(mcpService);
         
         if (useAI) {
-            System.out.println("✓ Claude AI activado");
-            System.out.println("✓ Contexto conversacional activado");
-            System.out.println("✓ Multi-query con reintentos automáticos");
-            System.out.println("✓ Tool Calling habilitado");
+            System.out.println(" Claude AI activado");
+            System.out.println(" Contexto conversacional activado");
+            System.out.println(" Multi-query con reintentos automáticos");
+            System.out.println(" Tool Calling habilitado");
         } else {
-            System.out.println("⚠ Modo simulado (verifica tu API key de Claude)");
+            System.out.println(" Modo simulado (verifica tu API key de Claude)");
         }
     }
-    
+    // Chequeo de disponibilidad de AI
     private boolean checkAIAvailability() {
         return ClaudeConfig.getInstance().isConfigured();
     }
-    
-    private void initializeResponses() {
-        responses.put("hola", "¡Hola! Soy Claude. ¿En qué puedo ayudarte hoy?");
-        responses.put("adios", "¡Hasta luego! Fue un placer ayudarte.");
-    }
-    
+    //Chequea si MCP está iniciado
     private void ensureMCPStarted() {
         if (!mcpEnabled && mcpService.start()) {
             mcpEnabled = true;
         }
-    }
-    
-    /**
-     * Genera respuesta usando Claude con Tool Calling y contexto
-     */
+    }    
+    //Genera respuesta usando Claude con Tool Calling y contexto
     public String generateResponse(String userMessage) {
         if (!useAI) {
-            return generateSimulatedResponse(userMessage);
-        }
-        
+            return  "ERROR: AI no disponible. Verifica tu configuración de Claude.";
+        }        
         try {
             ensureMCPStarted();
             
@@ -76,50 +60,26 @@ public class AIService {
             e.printStackTrace();
             return "Error procesando tu mensaje: " + e.getMessage();
         }
-    }
-    
-    private String generateSimulatedResponse(String userMessage) {
-        String normalized = userMessage.toLowerCase().trim();
-        
-        for (Map.Entry<String, String> entry : responses.entrySet()) {
-            if (normalized.contains(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        
-        String[] genericResponses = {
-            "Interesante. Cuéntame más.",
-            "Entiendo. ¿Qué más te gustaría saber?",
-            "He recibido tu mensaje. ¿En qué más puedo ayudarte?"
-        };
-        
-        return genericResponses[random.nextInt(genericResponses.length)];
-    }
-    
-    /**
-     * NUEVO: Limpia el contexto de Claude
-     */
+    }    
+    // Limpia el contexto de Claude
     public void clearContext() {
         if (claudeService != null) {
             claudeService.clearContext();
         }
     }
     
-    /**
-     * NUEVO: Obtiene el tamaño del contexto actual
-     */
+    // Obtiene el tamaño del contexto actual    
     public int getContextSize() {
         return claudeService != null ? claudeService.getContextSize() : 0;
     }
-    
+    //Getters
     public boolean isUsingAI() {
         return useAI;
-    }
-    
+    }    
     public boolean isMCPEnabled() {
         return mcpEnabled;
     }
-    
+    //Lista todas las herramientas (tools) disponibles en el servidor MCP
     public String listMCPTools() {
         ensureMCPStarted();
         if (!mcpEnabled) {
@@ -127,7 +87,7 @@ public class AIService {
         }
         return mcpService.listTools();
     }
-    
+    // Ejecuta una consulta MDX directamente sin pasar por Claude
     public String executeDirectMDX(String mdxQuery) {
         ensureMCPStarted();
         if (!mcpEnabled) {
@@ -135,7 +95,7 @@ public class AIService {
         }
         return mcpService.executeQuery(mdxQuery);
     }
-    
+    // Apaga servicios al cerrar la aplicación
     public void shutdown() {
         if (mcpEnabled) {
             mcpService.stop();

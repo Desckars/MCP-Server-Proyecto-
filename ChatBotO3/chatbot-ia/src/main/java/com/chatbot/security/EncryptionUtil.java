@@ -10,13 +10,7 @@ import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.Base64;
 
-/**
- * Utilidad para encriptar/desencriptar API Keys usando AES-256
- * 
- * Uso:
- * 1. Encriptar: java -cp ... com.chatbot.security.EncryptionUtil encrypt "sk-ant-..." "tu-password"
- * 2. Desencriptar: String apiKey = EncryptionUtil.decrypt(encrypted, password);
- */
+// Utilidad para encriptar/desencriptar API Keys usando AES-256
 public class EncryptionUtil {
     
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
@@ -24,9 +18,7 @@ public class EncryptionUtil {
     private static final int KEY_LENGTH = 256;
     private static final int ITERATION_COUNT = 65536;
     
-    /**
-     * Encripta un texto usando una contraseña
-     */
+    // Encripta un texto usando una contraseña(MASTER_KEY generada en ClaudeConfig)     
     public static String encrypt(String plainText, String password) throws Exception {
         byte[] salt = new byte[16];
         SecureRandom random = new SecureRandom();
@@ -49,9 +41,7 @@ public class EncryptionUtil {
         return saltB64 + ":" + ivB64 + ":" + encryptedB64;
     }
     
-    /**
-     * Desencripta un texto encriptado
-     */
+    // Desencripta un texto encriptado usando una contraseña(MASTER_KEY generada en ClaudeConfig)      
     public static String decrypt(String encryptedText, String password) throws Exception {
         String[] parts = encryptedText.split(":");
         if (parts.length != 3) {
@@ -70,14 +60,14 @@ public class EncryptionUtil {
         
         return new String(decrypted, "UTF-8");
     }
-    
+    // Genera la clave a partir de la MASTER_KEY
     private static SecretKey deriveKey(String password, byte[] salt) throws Exception {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATION_COUNT, KEY_LENGTH);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_ALGORITHM);
         byte[] keyBytes = factory.generateSecret(spec).getEncoded();
         return new SecretKeySpec(keyBytes, "AES");
     }
-    
+    // Valida si el texto está encriptado
     public static boolean isEncrypted(String text) {
         if (text == null || text.isEmpty()) return false;
         String[] parts = text.split(":");
@@ -86,7 +76,7 @@ public class EncryptionUtil {
                parts[1].matches("^[A-Za-z0-9+/=]+$") &&
                parts[2].matches("^[A-Za-z0-9+/=]+$");
     }
-    
+    // Sirve para ejecutar desde línea de comandos(Solo son mensajes)
     public static void main(String[] args) {
         if (args.length < 2) {
             System.out.println("Uso:");
@@ -99,19 +89,19 @@ public class EncryptionUtil {
             switch (args[0].toLowerCase()) {
                 case "encrypt":
                     String encrypted = encrypt(args[1], args[2]);
-                    System.out.println("\n✅ Encriptado:");
+                    System.out.println("\n Encriptado:");
                     System.out.println(encrypted);
                     System.out.println("\nCopia a config.properties:");
                     System.out.println("anthropic.api-key.encrypted=" + encrypted);
                     break;
                 case "decrypt":
                     String decrypted = decrypt(args[1], args[2]);
-                    System.out.println("\n✅ Desencriptado:");
+                    System.out.println("\n Desencriptado:");
                     System.out.println(decrypted);
                     break;
             }
         } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println(" Error: " + e.getMessage());
         }
     }
 }

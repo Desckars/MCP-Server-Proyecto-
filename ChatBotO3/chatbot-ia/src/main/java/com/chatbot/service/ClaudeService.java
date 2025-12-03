@@ -18,12 +18,13 @@ public class ClaudeService {
     private OkHttpClient client;
     private Gson gson;
     private MCPService mcpService;
-    private boolean eng = true;
     
-    // NUEVO: Mantener contexto de conversación
+    // Mantener contexto de conversación
+    // Probar de pasar directamente toda la conversación en vez de solo los ultimos 10 mensajes <---
     private List<Message> conversationContext;
-    private static final int MAX_CONTEXT_MESSAGES = 10; // Últimos 10 mensajes
+    private static final int MAX_CONTEXT_MESSAGES = 10; // Últimos 10 mensajes(Cambiar a futuro)
     
+    // Constructor
     public ClaudeService() {
         this.config = ClaudeConfig.getInstance();
         this.client = new OkHttpClient.Builder()
@@ -43,14 +44,12 @@ public class ClaudeService {
         System.out.println("Contexto conversacional: ACTIVADO");
         System.out.println("========================================\n");
     }
-    
+    // Setters
     public void setMCPService(MCPService mcpService) {
         this.mcpService = mcpService;
     }
     
-    /**
-     * MEJORADO: Agrega contexto de conversación
-     */
+    // Agrega contexto de conversación     
     public String generateResponseWithTools(String userMessage) {
         if (!config.isConfigured()) {
             return "ERROR: API Key de Anthropic no configurada";
@@ -59,8 +58,8 @@ public class ClaudeService {
         System.out.println("\n╔════════════════════════════════════════╗");
         System.out.println("║  CLAUDE CON CONTEXTO Y TOOLS           ║");
         System.out.println("╚════════════════════════════════════════╝");
-        System.out.println("📝 Mensaje: " + userMessage);
-        System.out.println("📚 Contexto: " + conversationContext.size() + " mensajes previos");
+        System.out.println(" Mensaje: " + userMessage);
+        System.out.println(" Contexto: " + conversationContext.size() + " mensajes previos");
         
         try {
             // Agregar mensaje del usuario al contexto
@@ -82,15 +81,13 @@ public class ClaudeService {
             return claudeResponse;
             
         } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println(" Error: " + e.getMessage());
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
     }
     
-    /**
-     * NUEVO: Construye request con historial de conversación
-     */
+    // Construye request con historial de conversación
     private JsonObject buildToolCallRequestWithContext() {
         JsonObject request = new JsonObject();
         request.addProperty("model", config.getModel());
@@ -120,13 +117,10 @@ public class ClaudeService {
         return request;
     }
     
-    /**
-     * NUEVO: System prompt mejorado con instrucciones de manejo de errores
-     */
+    // Construye System prompt mejorado con instrucciones de manejo de errores     
     private String buildSystemPrompt() {
-        if(eng){
         return """
-            You are an expert assistant in data analysis with Oracle Essbase/O3 and MDX queries.
+            You are an expert assistant in data analysis with O3 and MDX queries.
 
             INTELLIGENT MDX ERROR HANDLING:
                         
@@ -167,8 +161,8 @@ public class ClaudeService {
             4. EXPLORATORY QUERIES:
                When you don't know the structure:
                - List measures: SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-               - List dimenisons: SELECT {[DimensionName].Members} ON COLUMNS FROM [CubeName]
-               - See basic structure: SELECT {} ON COLUMNS FROM [CubeName]
+               - List dimenisons: SELECT {Dimensions} ON COLUMNS FROM [CubeName] 
+               - List Cube : SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
             
             5. CONVERSATION CONTEXT:
                - Remember previous successful queries from the same cube
@@ -185,74 +179,10 @@ public class ClaudeService {
             - DO NOT assume all errors are solved by using the "Demo" cube
             - Each error has a specific cause that you must identify
             - It's better to ask for clarification than to make wrong assumptions
-            """;
-        }
-        return """
-            Eres un asistente experto en análisis de datos con Oracle Essbase/O3 y consultas MDX.
-            
-            MANEJO INTELIGENTE DE ERRORES MDX:
-            
-            1. ANALIZAR EL ERROR ESPECÍFICO:
-               - Lee cuidadosamente el mensaje de error completo
-               - Identifica QUÉ falló exactamente (cubo, dimensión, medida, sintaxis)
-               - NO asumas soluciones genéricas
-            
-            2. ESTRATEGIAS SEGÚN EL TIPO DE ERROR:
-            
-               A) "Cubo no encontrado / Cube does not exist":
-                  - El cubo especificado NO existe en el servidor
-                  - Pregunta al usuario qué cubos tiene disponibles
-                  - O sugiere usar consultas exploratorias para listar cubos
-                  - NO cambies al cubo Demo automáticamente
-            
-               B) "Dimension not found / Member not found":
-                  - La dimensión o miembro específico no existe en ESE cubo
-                  - Intenta con nombres similares o consulta la estructura del cubo
-                  - Usa consultas exploratorias: SELECT {[DimensionName].Members}
-            
-               C) "Measure not found":
-                  - La medida no existe en ese cubo
-                  - Consulta medidas disponibles: SELECT {Measures.Members}
-                  - Luego usa las medidas reales encontradas
-            
-               D) "Syntax error":
-                  - Revisa la sintaxis MDX
-                  - Verifica paréntesis, llaves, comas
-                  - Simplifica la consulta si es muy compleja
-            
-            3. PROCESO DE REINTENTO:
-               - Solo reintenta si puedes CORREGIR el error específico
-               - Explica qué error encontraste y cómo lo corriges
-               - Si no puedes corregirlo, pide más información al usuario
-               - NO hagas suposiciones sobre qué cubo o dimensión usar
-            
-            4. CONSULTAS EXPLORATORIAS:
-               Cuando no conozcas la estructura:
-               - Listar medidas: SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-               - Listar dimensión: SELECT {[DimensionName].Members} ON COLUMNS FROM [CubeName]
-               - Ver estructura básica: SELECT {} ON COLUMNS FROM [CubeName]
-            
-            5. CONTEXTO DE CONVERSACIÓN:
-               - Recuerda consultas exitosas previas del MISMO cubo
-               - Si el usuario mencionó un cubo, usa ESE cubo
-               - No cambies de cubo sin que el usuario lo pida
-            
-            6. COMUNICACIÓN:
-               - Explica claramente qué intentaste y qué falló
-               - Si no puedes resolver el error, di "necesito más información sobre..."
-               - Ofrece opciones específicas, no genéricas
-               - Mantén un tono profesional y honesto
-            
-            IMPORTANTE: 
-            - NO asumas que todos los errores se resuelven usando el cubo "Demo"
-            - Cada error tiene una causa específica que debes identificar
-            - Es mejor pedir aclaración que hacer suposiciones incorrectas
-            """;
+            """;        
     }
     
-    /**
-     * MEJORADO: Procesa respuesta con reintentos automáticos
-     */
+    //  Procesa respuesta con reintentos automáticos     
     private String processToolCallResponse(String responseBody, String originalMessage) {
         try {
             JsonObject root = gson.fromJson(responseBody, JsonObject.class);
@@ -271,17 +201,15 @@ public class ClaudeService {
             return extractTextFromContent(content);
             
         } catch (Exception e) {
-            System.err.println("❌ Error procesando respuesta: " + e.getMessage());
+            System.err.println(" Error procesando respuesta: " + e.getMessage());
             e.printStackTrace();
             return "Error procesando respuesta: " + e.getMessage();
         }
     }
     
-    /**
-     * NUEVO: Maneja tool use con reintentos automáticos
-     */
+    //Maneja tool use con reintentos automáticos     
     private String handleToolUseWithRetry(JsonArray content, JsonObject originalResponse, 
-                                          String originalMessage, int attemptNumber) {
+                                            String originalMessage, int attemptNumber) {
         final int MAX_ATTEMPTS = 3;
         
         try {
@@ -308,20 +236,20 @@ public class ClaudeService {
             String toolId = toolUse.get("id").getAsString();
             JsonObject input = toolUse.getAsJsonObject("input");
             
-            System.out.println("🔧 Intento #" + (attemptNumber + 1) + " - Claude quiere usar: " + toolName);
+            System.out.println(" Intento #" + (attemptNumber + 1) + " - Claude quiere usar: " + toolName);
             if (!thinkingText.isEmpty()) {
-                System.out.println("💭 Claude piensa: " + thinkingText.substring(0, Math.min(100, thinkingText.length())));
+                System.out.println(" Claude piensa: " + thinkingText.substring(0, Math.min(100, thinkingText.length())));
             }
-            System.out.println("📝 Parámetros: " + input);
+            System.out.println(" Parámetros: " + input);
             
             // Ejecutar el tool
             String toolResult = executeTool(toolName, input);
-            System.out.println("✅ Resultado obtenido (" + toolResult.length() + " caracteres)");
+            System.out.println(" Resultado obtenido (" + toolResult.length() + " caracteres)");
             
             // Verificar si el resultado es un error
             boolean isError = toolResult.contains("Error") || 
-                             toolResult.contains("ERROR") ||
-                             toolResult.contains("Exception");
+                                toolResult.contains("ERROR") ||
+                                toolResult.contains("Exception");
             
             // Continuar con el resultado
             String finalResponse = continueWithToolResult(
@@ -331,28 +259,28 @@ public class ClaudeService {
             
             // Si es un error y no hemos superado max intentos, Claude podría reintentar
             if (isError && attemptNumber < MAX_ATTEMPTS - 1) {
-                System.out.println("⚠️  Resultado contiene error, Claude decidirá si reintenta...");
+                System.out.println(" Resultado contiene error, Claude decidirá si reintenta...");
             }
             
             return finalResponse;
             
         } catch (Exception e) {
-            System.err.println("❌ Error en handleToolUseWithRetry: " + e.getMessage());
+            System.err.println(" Error en handleToolUseWithRetry: " + e.getMessage());
             e.printStackTrace();
             
             if (attemptNumber < MAX_ATTEMPTS - 1) {
-                System.out.println("🔄 Reintentando... (intento " + (attemptNumber + 2) + ")");
+                System.out.println(" Reintentando... (intento " + (attemptNumber + 2) + ")");
                 return "Error en intento " + (attemptNumber + 1) + ": " + e.getMessage();
             }
             
             return "Error ejecutando tool después de " + MAX_ATTEMPTS + " intentos: " + e.getMessage();
         }
     }
-    
+    // Ejecutar el tool
     private String executeTool(String toolName, JsonObject input) {
         if ("executeCustomMdxQuery".equals(toolName)) {
             String mdxQuery = input.get("mdxQuery").getAsString();
-            System.out.println("📊 Ejecutando MDX: " + mdxQuery);
+            System.out.println(" Ejecutando MDX: " + mdxQuery);
             try { ConversationLogger.getInstance().logInfo("Claude solicita ejecutar tool: executeCustomMdxQuery"); } catch (Exception ignored) {}
             try { ConversationLogger.getInstance().logMCPQuery(mdxQuery); } catch (Exception ignored) {}
             
@@ -363,22 +291,20 @@ public class ClaudeService {
                 // Si el resultado es muy largo, truncarlo pero indicar que hay más
                 if (result.length() > 4000) {
                     return result.substring(0, 4000) + 
-                           "\n\n... (Resultado truncado. Total: " + result.length() + " caracteres)";
+                            "\n\n... (Resultado truncado. Total: " + result.length() + " caracteres)";
                 }
                 
                 return result;
                 
             } catch (Exception e) {
                 return "Error ejecutando MDX: " + e.getMessage() + 
-                       "\nConsulta: " + mdxQuery;
+                        "\nConsulta: " + mdxQuery;
             }
         }
         return "Error: Tool desconocido: " + toolName;
     }
     
-    /**
-     * MEJORADO: Continua con resultado del tool, permitiendo que Claude reintente SOLO si tiene sentido
-     */
+    // Continua con resultado del tool, permitiendo que Claude reintente SOLO si tiene sentido     
     private String continueWithToolResult(JsonObject originalResponse, String toolId, 
                                         String toolResult, String originalMessage,
                                         boolean wasError, int attemptNumber) {
@@ -387,21 +313,20 @@ public class ClaudeService {
             request.addProperty("model", config.getModel());
             request.addProperty("max_tokens", config.getMaxTokens());
             
-            // ✅ Construir el system prompt completo
+            // Construir el system prompt completo
             String systemPrompt = buildSystemPrompt();
             
             if (wasError) {
                 String errorContext;
-                if(eng){
                     errorContext = """
-                        ⚠️ WARNING: the previous MDX query has failed.
+                        WARNING: the previous MDX query has failed.
                         
                         BEFORE RETRYING, ANALYZE THE ERROR CAREFULLY:
                         
                         1. Which type of error is it?
                         - Cube doesn't exist → DO NOT change cube without user input
-                        - Dimension doesn´t exist → Check which dimensions are available in that cube
-                        - Measure doesn´t exist → Check which measures are available in that cube
+                        - Dimension doesn t exist → Check which dimensions are available in that cube
+                        - Measure doesn t exist → Check which measures are available in that cube
                         - Sintax → Fix the sintax (parentheses, braces, commas)
                         - Connection → IT ISN'T a query issue, inform the user
                         
@@ -417,7 +342,7 @@ public class ClaudeService {
                         4. Need information about the structure?
                         - Use exploratory queries in the SAME CUBE:
                             * SELECT {Measures.Members} → See measure
-                            * SELECT {[DimName].Members} → See dimension
+                            * SELECT {Dimensions} ON COLUMNS FROM [CubeName]  → See dimension
                         
                         REMEMBER:
                         - Analyze the full error message
@@ -425,50 +350,12 @@ public class ClaudeService {
                         - Only try again if you have a clear plan
                         - It's better to ask for clarification than to guess
                         
-                        Attempts done: %d of 3
                         """.formatted(attemptNumber + 1);
-                } else {
-                    errorContext = """
-                        ⚠️ ATENCIÓN: La consulta MDX anterior falló.
-                        
-                        ANTES DE REINTENTAR, ANALIZA:
-                        
-                        1. ¿Qué tipo de error fue?
-                        - Cubo no existe → NO cambies a otro cubo sin confirmar
-                        - Dimensión no existe → Consulta qué dimensiones tiene ese cubo
-                        - Medida no existe → Consulta qué medidas tiene ese cubo
-                        - Sintaxis → Corrige la sintaxis
-                        - Conexión → NO es problema de tu consulta, informa al usuario
-                        
-                        2. ¿Tienes información suficiente para corregir?
-                        SÍ → Intenta una consulta exploratoria o corregida
-                        NO → Explica al usuario el error y pide más información
-                        
-                        3. ¿Es el cubo correcto?
-                        - Si el usuario pidió un cubo específico, usa ESE cubo
-                        - NO cambies a "Demo" u otro cubo por defecto
-                        - Si el cubo no existe, pregunta qué cubos tiene disponibles
-                        
-                        4. ¿Necesitas información sobre la estructura?
-                        - Usa consultas exploratorias en el MISMO cubo:
-                            * SELECT {Measures.Members} → Ver medidas
-                            * SELECT {[DimName].Members} → Ver dimensión
-                        
-                        RECUERDA:
-                        - Analiza el mensaje de error completo
-                        - Explica qué intentaste y por qué falló
-                        - Solo reintenta si tienes un plan claro
-                        - Es mejor pedir aclaración que adivinar
-                        
-                        Intentos usados: %d de 3
-                        """.formatted(attemptNumber + 1);
-                }
-                
                 // Agregar el contexto de error al system prompt
                 systemPrompt = systemPrompt + "\n\n" + errorContext;
             }
             
-            // ✅ Ahora sí podemos usar systemPrompt sin problemas de scope
+            // Agregar system prompt mejorado
             request.addProperty("system", systemPrompt);
             
             JsonArray messages = new JsonArray();
@@ -524,9 +411,9 @@ public class ClaudeService {
                 System.out.println("   (Último intento alcanzado - sin opción de tool_use)");
             }
             
-            System.out.println("🔄 Enviando resultado a Claude para análisis...");
+            System.out.println(" Enviando resultado a Claude para análisis...");
             if (wasError) {
-                System.out.println("   ⚠️  Claude analizará si puede corregir el error o necesita preguntar");
+                System.out.println(" Claude analizará si puede corregir el error o necesita preguntar");
             }
             
             String response = sendRequest(request);
@@ -534,7 +421,7 @@ public class ClaudeService {
             
             // Verificar si Claude quiere hacer otro tool_use (reintento inteligente)
             if (root.has("stop_reason") && "tool_use".equals(root.get("stop_reason").getAsString())) {
-                System.out.println("🔄 Claude identificó cómo corregir el error y reintenta...");
+                System.out.println(" Claude identificó cómo corregir el error y reintenta...");
                 return handleToolUseWithRetry(
                     root.getAsJsonArray("content"), 
                     root, 
@@ -551,145 +438,66 @@ public class ClaudeService {
             return "Error: No se pudo obtener interpretación final";
             
         } catch (Exception e) {
-            System.err.println("❌ Error en continueWithToolResult: " + e.getMessage());
+            System.err.println(" Error en continueWithToolResult: " + e.getMessage());
             e.printStackTrace();
             return "Resultados: " + toolResult + "\n\n(No se pudo obtener interpretación de Claude)";
         }
     }
-    
+    // Contiene descripcion y esquema de input para el tool executeCustomMdxQuery
     private JsonObject buildExecuteMDXTool() {
         JsonObject tool = new JsonObject();
         tool.addProperty("name", "executeCustomMdxQuery");
-        if(eng){
-            tool.addProperty("description", """
-                Execute a custom MDX query against the O3 cube server and return the results.
-                Use the following guidelines to construct your MDX queries:
+        tool.addProperty("description", """
+            Execute a custom MDX query against the O3 cube server and return the results.
+            Use the following guidelines to construct your MDX queries:
 
-                COOMON MDX QUERY PATTERNS:
-                1. Simple query by measure: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName]
-                2. By dimension: SELECT {Measures.[MeasureName]} ON COLUMNS, {[Dimension].children} ON ROWS FROM [CubeName]
-                3. Multiple measures: SELECT {Measures.[MeasureName1], Measures.[MeasureName2]} ON COLUMNS FROM [CubeName]
-                4. With WHERE filter: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] WHERE Measures.[MeasureFilter]
-                5. NON EMPTY to omit empty/void variables/values: SELECT NON EMPTY {[Dimension].children} ON ROWS FROM [CubeName]
-                6. CROSSJOIN to cross dimensions: CROSSJOIN({[Dimension1].children}, {[Dimension2].[SpecificMember]})
-                7. Cube info: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM [CubeName]
+            COOMON MDX QUERY PATTERNS:
+            1. Simple query by measure: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName]
+            2. By dimension: SELECT {Measures.[MeasureName]} ON COLUMNS, {[Dimension].children} ON ROWS FROM [CubeName]
+            3. Multiple measures: SELECT {Measures.[MeasureName1], Measures.[MeasureName2]} ON COLUMNS FROM [CubeName]
+            4. With WHERE filter: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] WHERE Measures.[MeasureFilter]
+            5. NON EMPTY to omit empty/void variables/values: SELECT NON EMPTY {[Dimension].children} ON ROWS FROM [CubeName]
+            6. CROSSJOIN to cross dimensions: CROSSJOIN({[Dimension1].children}, {[Dimension2].[SpecificMember]})
+            7. Cube info: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM [CubeName]
 
-
-                Interpretation examples (Use these only as a reference for constructing your own queries, do not copy them directly. Use only the cube the user specifies):
-                1 - 'show units sold by location' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM [CubeName]
-                2 - 'costs and units sold by major accounts' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM [CubeName]
-                3 - 'earnings by product' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM [CubeName]
-                4 - 'Units sold in France for client types Major Accounts and Minor Accounts'
-                SELECT {Customers.[Major Accounts], Customers.[Minor Accounts]} ON COLUMNS, {Location.[France]} ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
-                5 - 'global vision of each salesman with units sold and commissions earned'
-                SELECT {Measures.[Units Sold], Measures.[Commissions]} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
-                6 - 'revenue for mountain bikes professional in US for years 2002 and 2003'
-                SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
-                7 - 'show all major accounts in France with units sold'
-                SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
-                8 - 'children members of salesmen with total number of children'
-                SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
-                9 - 'query involves 3 dimensions: products, locations and dates. 3 axis visualization is complex so usually we show a bi-dimensional matrix combining dimensions'
-                SELECT {Date.[2001], Date.[2002]} ON COLUMNS, {
-                    (Location.[Brazil], Products.[Mountain Bikes].[Professional]),
-                    (Location.[Brazil], Products.[Mountain Bikes].[Recreational]),
-                    (Location.[Spain], Products.[Mountain Bikes].[Professional]),
-                    (Location.[Spain], Products.[Mountain Bikes].[Recreational])
-                } ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
-                10 - 'MDX CrossJoin returns the cartesian product of two sets'
-                SELECT {Date.[2001], Date.[2002]} ON COLUMNS, CrossJoin({Location.children}, {Products.[Mountain Bikes].children}) ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
-                11 - 'evolution of cost per unit sold across years except 2002'
-                SELECT except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
-                12 - 'Get all cities in France'
-                SELECT {Location.[France].children} ON COLUMNS, {} ON ROWS FROM [CubeName]
-                13 - 'Get all cities across every location'
-                SELECT {Measures.[Units Sold]} ON COLUMNS, Descendants(Location, Location.City) ON ROWS FROM [CubeName]
-                14 - 'Return elements in first set not in second'
-                SELECT Except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
-                15 - 'List available cubes on the server'
-                SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
-                16 - 'List dimensions of a cube'
-                SELECT {Dimensions} ON COLUMNS FROM [CubeName]
-                17 - 'List measures of a cube'
-                SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-                """);
-        }else{
-            tool.addProperty("description", """
-            Ejecuta una consulta MDX específica contra cubos OLAP de Oracle O3/Essbase y retorna los resultados formateados.
-            
-            ⚠️ MANEJO INTELIGENTE DE ERRORES:
-            
-            Si recibes un ERROR, analiza el mensaje específico:
-            
-            1) "Cube 'X' not found" / "Cubo no existe":
-               → El cubo especificado no existe en el servidor
-               → NO cambies automáticamente a otro cubo
-               → Pregunta al usuario qué cubos tiene disponibles
-               → O usa una consulta exploratoria si el usuario no sabe
-            
-            2) "Dimension 'X' not found" / "Member 'X' not found":
-               → Esa dimensión/miembro no existe en ESE cubo específico
-               → Primero consulta qué dimensiones tiene: 
-                 SELECT {Dimensions.Members} ON COLUMNS FROM [CubeName]
-               → Luego usa las dimensiones reales que encontraste
-            
-            3) "Measure 'X' not found":
-               → Esa medida no existe en ese cubo
-               → Consulta medidas disponibles:
-                 SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-               → Usa las medidas reales del cubo
-            
-            4) "Syntax error" / Error de sintaxis:
-               → Revisa la sintaxis MDX (llaves, paréntesis, FROM, WHERE)
-               → Simplifica la consulta
-               → Verifica el formato correcto
-            
-            5) "Connection refused" / "Server not available":
-               → El servidor O3/Essbase no está accesible
-               → Informa al usuario que el servidor está caído
-               → NO intentes reintentar, no es un problema de la consulta
-            
-            📋 CONSULTAS EXPLORATORIAS (cuando NO conozcas la estructura):
-            
-            - Ver todas las medidas de un cubo:
-              SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
-            
-            - Ver miembros de una dimensión:
-              SELECT {[DimensionName].Members} ON COLUMNS FROM [CubeName]
-            
-            - Ver estructura básica:
-              SELECT {} ON COLUMNS FROM [CubeName]
-            
-            - Ver jerarquía de una dimensión:
-              SELECT {[DimensionName].Levels(0).Members} ON COLUMNS FROM [CubeName]
-            
-            📚 EJEMPLOS DE CUBOS Y ESTRUCTURAS CONOCIDAS:
-            
-            CUBO "Demo" (si el usuario lo menciona):
-            - Dimensiones: Customers, Location, Products, Date, Salesmen
-            - Medidas: Units Sold, Cost, Revenue, Commissions, Discount
-            
-            Pero RECUERDA: El usuario puede tener OTROS cubos con OTRAS estructuras.
-            NO asumas que todos usan Demo.
-            
-            🎯 ESTRATEGIA DE REINTENTOS:
-            
-            SOLO reintenta si:
-            ✅ Identificaste el problema específico (dimensión mal escrita, etc.)
-            ✅ Tienes información para corregirlo
-            ✅ Puedes usar una consulta exploratoria para obtener info
-            
-            NO reintentes si:
-            ❌ El error es de conexión al servidor
-            ❌ No entiendes qué salió mal
-            ❌ Necesitas que el usuario te dé más información
-            
-            En esos casos, explica el error y pide ayuda al usuario.
-            
-            💡 REGLA DE ORO:
-            Es mejor pedir aclaración al usuario que hacer suposiciones incorrectas.
-            """);
-        }
+            Interpretation examples (Use these only as a reference for constructing your own queries, do not copy them directly. Use only the cube the user specifies):
+            1 - 'show units sold by location' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM [CubeName]
+            2 - 'costs and units sold by major accounts' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM [CubeName]
+            3 - 'earnings by product' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM [CubeName]
+            4 - 'Units sold in France for client types Major Accounts and Minor Accounts'
+            SELECT {Customers.[Major Accounts], Customers.[Minor Accounts]} ON COLUMNS, {Location.[France]} ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+            5 - 'global vision of each salesman with units sold and commissions earned'
+            SELECT {Measures.[Units Sold], Measures.[Commissions]} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
+            6 - 'revenue for mountain bikes professional in US for years 2002 and 2003'
+            SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
+            7 - 'show all major accounts in France with units sold'
+            SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+            8 - 'children members of salesmen with total number of children'
+            SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
+            9 - 'query involves 3 dimensions: products, locations and dates. 3 axis visualization is complex so usually we show a bi-dimensional matrix combining dimensions'
+            SELECT {Date.[2001], Date.[2002]} ON COLUMNS, {
+                (Location.[Brazil], Products.[Mountain Bikes].[Professional]),
+                (Location.[Brazil], Products.[Mountain Bikes].[Recreational]),
+                (Location.[Spain], Products.[Mountain Bikes].[Professional]),
+                (Location.[Spain], Products.[Mountain Bikes].[Recreational])
+            } ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+            10 - 'MDX CrossJoin returns the cartesian product of two sets'
+            SELECT {Date.[2001], Date.[2002]} ON COLUMNS, CrossJoin({Location.children}, {Products.[Mountain Bikes].children}) ON ROWS FROM [CubeName] WHERE (Measures.[Units Sold])
+            11 - 'evolution of cost per unit sold across years except 2002'
+            SELECT except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
+            12 - 'Get all cities in France'
+            SELECT {Location.[France].children} ON COLUMNS, {} ON ROWS FROM [CubeName]
+            13 - 'Get all cities across every location'
+            SELECT {Measures.[Units Sold]} ON COLUMNS, Descendants(Location, Location.City) ON ROWS FROM [CubeName]
+            14 - 'Return elements in first set not in second'
+            SELECT Except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
+            15 - 'List available cubes on the server'
+            SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
+            16 - 'List dimensions of a cube'
+            SELECT {Dimensions} ON COLUMNS FROM [CubeName]
+            17 - 'List measures of a cube'
+            SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
+            """);        
         
         JsonObject inputSchema = new JsonObject();
         inputSchema.addProperty("type", "object");
@@ -712,7 +520,7 @@ public class ClaudeService {
         
         return tool;
     }
-    
+    // Extrae texto de la respuesta de Claude
     private String extractTextFromContent(JsonArray content) {
         StringBuilder result = new StringBuilder();
         
@@ -725,7 +533,7 @@ public class ClaudeService {
         
         return result.toString();
     }
-    
+    // Envía la solicitud HTTP a la API de Claude
     private String sendRequest(JsonObject requestBody) throws IOException {
         String jsonBody = gson.toJson(requestBody);
         
@@ -746,7 +554,7 @@ public class ClaudeService {
             String responseBody = response.body() != null ? response.body().string() : "";
             
             if (!response.isSuccessful()) {
-                System.err.println("❌ ERROR HTTP " + response.code());
+                System.err.println(" ERROR HTTP " + response.code());
                 System.err.println(responseBody);
                 throw new IOException("HTTP " + response.code() + ": " + parseErrorMessage(responseBody));
             }
@@ -755,88 +563,27 @@ public class ClaudeService {
         }
     }
     
-    /**
-     * NUEVO: Limpia el contexto manteniendo solo los últimos N mensajes
-     */
+    // Limpia el contexto manteniendo solo los últimos N mensajes
     private void trimContext() {
         if (conversationContext.size() > MAX_CONTEXT_MESSAGES) {
             int toRemove = conversationContext.size() - MAX_CONTEXT_MESSAGES;
             conversationContext = new ArrayList<>(
                 conversationContext.subList(toRemove, conversationContext.size())
             );
-            System.out.println("🗑️  Contexto trimmed: manteniendo últimos " + MAX_CONTEXT_MESSAGES + " mensajes");
+            System.out.println(" Contexto trimmed: manteniendo últimos " + MAX_CONTEXT_MESSAGES + " mensajes");
         }
     }
     
-    /**
-     * NUEVO: Limpia el contexto completamente
-     */
+    // Limpia el contexto completamente
     public void clearContext() {
         conversationContext.clear();
-        System.out.println("🗑️  Contexto de conversación limpiado");
+        System.out.println(" Contexto de conversación limpiado");
     }
-    
-    /**
-     * NUEVO: Obtiene el tamaño del contexto actual
-     */
+    // Obtiene el tamaño del contexto actual
     public int getContextSize() {
         return conversationContext.size();
-    }
-    
-    // Métodos legacy para compatibilidad
-    public String generateResponse(String userMessage) {
-        return generateResponse(userMessage, null);
-    }
-    
-    public String generateResponse(String userMessage, String systemPrompt) {
-        if (!config.isConfigured()) {
-            return "ERROR: API Key no configurada";
-        }
-        
-        try {
-            JsonObject requestBody = new JsonObject();
-            requestBody.addProperty("model", config.getModel());
-            requestBody.addProperty("max_tokens", config.getMaxTokens());
-            
-            if (systemPrompt != null && !systemPrompt.trim().isEmpty()) {
-                requestBody.addProperty("system", systemPrompt);
-            }
-            
-            JsonArray messages = new JsonArray();
-            JsonObject message = new JsonObject();
-            message.addProperty("role", "user");
-            message.addProperty("content", userMessage);
-            messages.add(message);
-            requestBody.add("messages", messages);
-            
-            String response = sendRequest(requestBody);
-            return parseClaudeResponse(response);
-            
-        } catch (Exception e) {
-            return "ERROR: " + e.getMessage();
-        }
-    }
-    
-    private String parseClaudeResponse(String responseBody) {
-        try {
-            JsonObject root = gson.fromJson(responseBody, JsonObject.class);
-            
-            if (root.has("error")) {
-                JsonObject error = root.getAsJsonObject("error");
-                return "Error: " + error.get("message").getAsString();
-            }
-            
-            if (root.has("content")) {
-                return extractTextFromContent(root.getAsJsonArray("content"));
-            }
-            
-            return "(no response)";
-            
-        } catch (Exception e) {
-            return "Error parseando: " + e.getMessage();
-        }
-    }
-    
+    }    
+    // Analiza el mensaje de error de Claude    
     private String parseErrorMessage(String responseBody) {
         try {
             JsonObject root = gson.fromJson(responseBody, JsonObject.class);

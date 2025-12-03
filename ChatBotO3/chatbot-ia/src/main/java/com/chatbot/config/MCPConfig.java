@@ -20,7 +20,7 @@ public class MCPConfig {
         }
         return instance;
     }
-    
+    //Cargar configuración desde el archivo properties
     private void loadConfiguration() {
         Properties props = new Properties();
         
@@ -43,7 +43,7 @@ public class MCPConfig {
             
             input.close();
             
-            System.out.println("✓ Configuración MCP O3 cargada");
+            System.out.println("Configuración MCP O3 cargada");
             System.out.println("  Habilitado: " + this.enabled);
             System.out.println("  JAR Path: " + this.jarPath);
             System.out.println("  Working Dir: " + this.workingDirectory);
@@ -60,6 +60,7 @@ public class MCPConfig {
         this.workingDirectory = ".";
     }
     
+    //Getters
     public boolean isEnabled() { return enabled; }
     public String getJarPath() { return jarPath; }
     public String getWorkingDirectory() { return workingDirectory; }
