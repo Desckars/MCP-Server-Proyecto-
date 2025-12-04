@@ -19,7 +19,7 @@ public class ConsoleUI {
         printWelcome();
         
         while (running) {
-            System.out.print("\n💬 Tú: ");
+            System.out.print("\n Tú: ");
             String userInput = scanner.nextLine().trim();
             
             if (userInput.isEmpty()) {
@@ -32,9 +32,9 @@ public class ConsoleUI {
             }
             
             // Enviar mensaje y obtener respuesta
-            System.out.println("\n🤔 Claude está pensando...\n");
+            System.out.println("\n Claude está pensando...\n");
             String response = chatService.sendMessage(userInput);
-            System.out.println("🤖 Claude: " + response);
+            System.out.println(" Claude: " + response);
         }
         
         printGoodbye();
@@ -53,7 +53,7 @@ public class ConsoleUI {
             case "/limpiar":
             case "/clear":
                 chatService.clearHistory();
-                System.out.println("\n✅ [Historial y contexto limpiados]");
+                System.out.println("\n [Historial y contexto limpiados]");
                 return true;
                 
             case "/historial":
@@ -95,11 +95,11 @@ public class ConsoleUI {
         System.out.println("║     CHATBOT IA - Claude Sonnet 4 + Oracle O3            ║");
         System.out.println("║     Versión 2.0 - Con Contexto y Multi-Query            ║");
         System.out.println("╚══════════════════════════════════════════════════════════╝");
-        System.out.println("\n✨ Nuevas Características:");
-        System.out.println("   • 🧠 Contexto conversacional (recuerda tu conversación)");
-        System.out.println("   • 🔄 Reintentos automáticos en consultas MDX");
-        System.out.println("   • 🛠️  Claude decide cuándo usar herramientas");
-        System.out.println("\n💡 Escribe '/ayuda' para ver comandos disponibles");
+        System.out.println("\n Nuevas Características:");
+        System.out.println("   Contexto conversacional (recuerda tu conversación)");
+        System.out.println("   Reintentos automáticos en consultas MDX");
+        System.out.println("   Claude decide cuándo usar herramientas");
+        System.out.println("\n Escribe '/ayuda' para ver comandos disponibles");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
     
@@ -113,7 +113,7 @@ public class ConsoleUI {
     
     private void printHelp() {
         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("📚 COMANDOS DISPONIBLES:");
+        System.out.println(" COMANDOS DISPONIBLES:");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  /ayuda, /help          - Muestra esta ayuda");
         System.out.println("  /historial, /history   - Muestra el historial completo");
@@ -124,7 +124,7 @@ public class ConsoleUI {
         System.out.println("  /tools                 - Lista herramientas MCP");
         System.out.println("  /salir, /exit          - Sale de la aplicación");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("\n💡 EJEMPLOS DE USO:");
+        System.out.println("\n EJEMPLOS DE USO:");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  Conversación normal:");
         System.out.println("  → Hola, ¿cómo funciona MDX?");
@@ -142,7 +142,7 @@ public class ConsoleUI {
     
     private void printHistory() {
         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("📜 HISTORIAL DE CONVERSACIÓN:");
+        System.out.println(" HISTORIAL DE CONVERSACIÓN:");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         
         if (!chatService.hasActiveConversation()) {
@@ -150,7 +150,7 @@ public class ConsoleUI {
         } else {
             int count = 1;
             for (Message msg : chatService.getConversationHistory()) {
-                String sender = "USER".equals(msg.getSender()) ? "💬 Tú" : "🤖 Claude";
+                String sender = "USER".equals(msg.getSender()) ? " Tú" : " Claude";
                 String content = msg.getContent();
                 
                 // Truncar si es muy largo
@@ -168,16 +168,16 @@ public class ConsoleUI {
     
     private void printStatus() {
         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("🔌 ESTADO DE CONEXIONES:");
+        System.out.println("ESTADO DE CONEXIONES:");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         
         boolean aiActive = chatService.getAIService().isUsingAI();
         boolean mcpActive = chatService.getAIService().isMCPEnabled();
         
-        System.out.println("  Claude AI:       " + (aiActive ? "🟢 Activo" : "🔴 Inactivo"));
-        System.out.println("  MCP O3:          " + (mcpActive ? "🟢 Conectado" : "⚪ Esperando uso"));
-        System.out.println("  Contexto:        🟢 Activado");
-        System.out.println("  Multi-Query:     🟢 Activado");
+        System.out.println("  Claude AI:       " + (aiActive ? " Activo" : " Inactivo"));
+        System.out.println("  MCP O3:          " + (mcpActive ? " Conectado" : " Esperando uso"));
+        System.out.println("  Contexto:         Activado");
+        System.out.println("  Multi-Query:      Activado");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     }
     
@@ -187,12 +187,12 @@ public class ConsoleUI {
     
     private void printContextInfo() {
         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("🧠 INFORMACIÓN DEL CONTEXTO:");
+        System.out.println(" INFORMACIÓN DEL CONTEXTO:");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  Mensajes en contexto de Claude: " + 
                           chatService.getAIService().getContextSize());
         System.out.println("  Historial local: " + chatService.getMessageCount());
-        System.out.println("\n💡 ¿Qué es el contexto?");
+        System.out.println("\n ¿Qué es el contexto?");
         System.out.println("  Claude recuerda los últimos 10 mensajes de la conversación,");
         System.out.println("  lo que le permite:");
         System.out.println("  • Entender referencias como 'lo anterior' o 'ese dato'");
@@ -203,7 +203,7 @@ public class ConsoleUI {
     }
     
     private void printTools() {
-        System.out.println("\n🔧 Obteniendo herramientas disponibles...\n");
+        System.out.println("\n Obteniendo herramientas disponibles...\n");
         String tools = chatService.getAIService().listMCPTools();
         System.out.println(tools);
     }

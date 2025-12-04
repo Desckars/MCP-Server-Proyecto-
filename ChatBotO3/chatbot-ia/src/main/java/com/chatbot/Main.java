@@ -19,7 +19,6 @@ public class Main {
         } catch (Exception e) {
             System.err.println("No se pudo inicializar ConversationLogger: " + e.getMessage());
         }
-
         if (args.length > 0 && args[0].equals("--console")) {
             // Modo consola
             startConsoleMode();
@@ -31,14 +30,13 @@ public class Main {
     
     private static void startGUIMode() {
         SwingUtilities.invokeLater(() -> {
-            // ========================================
+            
             // VERIFICAR CONFIGURACIÓN
-            // ========================================
             ClaudeConfig config = ClaudeConfig.getInstance();
             
             if (!config.isConfigured()) {
-                System.out.println("⚙️ Primera configuración necesaria");
-                System.out.println("   Abriendo ventana de configuración...\n");
+                System.out.println("Primera configuración necesaria");
+                System.out.println("Abriendo ventana de configuración...\n");
                 
                 // Mostrar ventana de configuración
                 ConfigSetupUI configDialog = new ConfigSetupUI(null);
@@ -46,7 +44,7 @@ public class Main {
                 
                 // Si el usuario canceló, salir
                 if (!configDialog.isConfigSaved()) {
-                    System.out.println("❌ Configuración cancelada. Saliendo...");
+                    System.out.println("Configuración cancelada. Saliendo...");
                     JOptionPane.showMessageDialog(
                         null,
                         "Configuración cancelada.\nNo se puede iniciar el chatbot sin API Key.",
@@ -58,14 +56,14 @@ public class Main {
                 }
                 
                 // Recargar configuración después de guardar
-                System.out.println("✅ Configuración guardada. Recargando...\n");
+                System.out.println("Configuración guardada. Recargando...\n");
                 // Forzar nueva instancia para recargar desde archivo
                 config = ClaudeConfig.getInstance();
             }
             
             // Verificar que ahora sí esté configurado
             if (!config.isConfigured()) {
-                System.err.println("❌ Error: Configuración inválida después de guardar");
+                System.err.println("Error: Configuración inválida después de guardar");
                 JOptionPane.showMessageDialog(
                     null,
                     "Error en la configuración guardada.\n\nPor favor, verifica:\n" +
@@ -79,10 +77,8 @@ public class Main {
                 return;
             }
             
-            // ========================================
             // INICIAR CHATBOT
-            // ========================================
-            System.out.println("✅ Configuración válida. Iniciando ChatBot IA...\n");
+            System.out.println("Configuración válida. Iniciando ChatBot IA...\n");
             
             ChatUI app = new ChatUI();
             app.setVisible(true);
@@ -98,7 +94,7 @@ public class Main {
         ClaudeConfig config = ClaudeConfig.getInstance();
         
         if (!config.isConfigured()) {
-            System.err.println("❌ ERROR: API Key no configurado\n");
+            System.err.println(" ERROR: API Key no configurado\n");
             System.out.println("Para configurar tu API Key:");
             System.out.println();
             System.out.println("OPCIÓN 1 (Recomendada - Interfaz Gráfica):");
@@ -119,7 +115,7 @@ public class Main {
             return;
         }
         
-        System.out.println("✅ Configuración válida");
+        System.out.println("Configuración válida");
         System.out.println("   Modelo: " + config.getModel());
         System.out.println("   Max Tokens: " + config.getMaxTokens());
         System.out.println();

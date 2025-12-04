@@ -39,14 +39,12 @@ public class ChatUI extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         mainPanel.setBackground(new Color(240, 240, 245));
-        
-        // ========================================
+                
         // PANEL SUPERIOR CON ESTADO Y CONFIG
-        // ========================================
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(240, 240, 245));
         
-        JLabel titleLabel = new JLabel("🤖 Claude AI + O3");
+        JLabel titleLabel = new JLabel("Claude AI + O3");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         topPanel.add(titleLabel, BorderLayout.WEST);
         
@@ -60,7 +58,7 @@ public class ChatUI extends JFrame {
         topRightPanel.add(statusLabel);
         
         // Botón de configuración
-        configButton = new JButton("⚙️");
+        configButton = new JButton("Config");
         configButton.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         configButton.setPreferredSize(new Dimension(45, 30));
         configButton.setFocusPainted(false);
@@ -87,9 +85,7 @@ public class ChatUI extends JFrame {
         topRightPanel.add(configButton);
         topPanel.add(topRightPanel, BorderLayout.EAST);
         
-        // ========================================
         // ÁREA DE CHAT 
-        // ========================================
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
@@ -102,9 +98,7 @@ public class ChatUI extends JFrame {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);        
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
         
-        // ========================================
         // PANEL INFERIOR
-        // ========================================
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
         bottomPanel.setBackground(new Color(240, 240, 245));
         
@@ -140,9 +134,7 @@ public class ChatUI extends JFrame {
         bottomPanel.add(inputField, BorderLayout.CENTER);
         bottomPanel.add(buttonPanel, BorderLayout.EAST);
         
-        // ========================================
         // AGREGAR COMPONENTES
-        // ========================================
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -154,9 +146,7 @@ public class ChatUI extends JFrame {
                 "y también ejecutar consultas MDX sobre cubos O3. ¿En qué puedo ayudarte hoy?");
     }
     
-    /**
-     * Actualiza el label de estado con la info de AI y MCP
-     */
+    //Actualiza el label de estado con la info de AI y MCP
     private void updateStatusLabel() {
         boolean aiActive = chatService.getAIService().isUsingAI();
         boolean mcpActive = chatService.getAIService().isMCPEnabled();
@@ -164,15 +154,15 @@ public class ChatUI extends JFrame {
         StringBuilder status = new StringBuilder();
         
         if (aiActive) {
-            status.append("🟢 Claude AI");
+            status.append(" Claude AI");
         } else {
-            status.append("🔴 Sin API Key");
+            status.append(" Sin API Key");
         }
         
         if (mcpActive) {
-            status.append(" | 🟢 MCP O3");
+            status.append(" | MCP O3");
         } else {
-            status.append(" | ⚪ MCP O3");
+            status.append(" | MCP O3");
         }
         
         statusLabel.setText(status.toString());
@@ -185,9 +175,7 @@ public class ChatUI extends JFrame {
         }
     }
     
-    /**
-     * Abre el diálogo de configuración
-     */
+    //Abre el diálogo de configuración
     private void openConfigDialog() {
         ConfigSetupUI configDialog = new ConfigSetupUI(this);
         configDialog.setVisible(true);
@@ -204,7 +192,7 @@ public class ChatUI extends JFrame {
             updateStatusLabel();
             
             // Notificar al usuario
-            appendMessage("SISTEMA", "✅ Configuración actualizada correctamente. " +
+            appendMessage("SISTEMA", " Configuración actualizada correctamente. " +
                 "Los cambios se han aplicado. Puedes continuar usando el chatbot.");
             
             // Limpiar historial para evitar confusiones
@@ -212,9 +200,7 @@ public class ChatUI extends JFrame {
         }
     }
     
-    /**
-     * Envía un mensaje al chatbot
-     */
+    //Envía un mensaje al chatbot
     private void sendMessage() {
         String message = inputField.getText().trim();
         
@@ -224,7 +210,7 @@ public class ChatUI extends JFrame {
         
         // Verificar si hay API Key configurado
         if (!chatService.getAIService().isUsingAI()) {
-            appendMessage("SISTEMA", "⚠️ No hay API Key configurado. Haz clic en ⚙️ para configurarlo.");
+            appendMessage("SISTEMA", " No hay API Key configurado. Haz clic en el botón de configuración para configurarlo.");
             inputField.setText("");
             return;
         }
@@ -263,9 +249,7 @@ public class ChatUI extends JFrame {
         worker.execute();
     }
     
-    /**
-     * Agrega un mensaje al área de chat
-     */
+    // Agrega un mensaje al área de chat     
     private void appendMessage(String sender, String content) {
            String timestamp = java.time.LocalTime.now().format(
             java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")
@@ -282,9 +266,7 @@ public class ChatUI extends JFrame {
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
     
-    /**
-     * Limpia el chat
-     */
+    //Limpia el chat
     private void clearChat() {
         int option = JOptionPane.showConfirmDialog(
             this,

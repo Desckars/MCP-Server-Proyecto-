@@ -9,15 +9,14 @@ import java.awt.*;
 import java.io.*;
 import java.util.Properties;
 
-/**
- * Ventana de configuración inicial para gestionar el API Key
- * Diseño moderno y profesional
- */
+// Ventana de configuración inicial para gestionar el API Key
+//Diseño moderno y profesional
 public class ConfigSetupUI extends JDialog {
     
     private JPasswordField apiKeyField;
     private JComboBox<String> modelCombo;
     private JSpinner maxTokensSpinner;
+
     private JButton saveButton;
     private JButton cancelButton;
     private JButton showHideButton;
@@ -99,10 +98,8 @@ public class ConfigSetupUI extends JDialog {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(BACKGROUND);
         mainPanel.setBorder(new EmptyBorder(40, 50, 40, 50));
-        
-        // ========================================
+
         // ENCABEZADO CON ICONO
-        // ========================================
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBackground(BACKGROUND);
@@ -137,13 +134,11 @@ public class ConfigSetupUI extends JDialog {
         
         mainPanel.add(headerPanel);
         mainPanel.add(Box.createVerticalStrut(40));
-        
-        // ========================================
+
         // TARJETA DE API KEY
-        // ========================================
         JPanel apiKeyCard = createModernCard();
         
-        JLabel apiKeyTitleLabel = new JLabel("🔑 API Key de Anthropic");
+        JLabel apiKeyTitleLabel = new JLabel("API Key de Anthropic");
         apiKeyTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         apiKeyTitleLabel.setForeground(TEXT_PRIMARY);
         apiKeyCard.add(apiKeyTitleLabel);
@@ -186,12 +181,10 @@ public class ConfigSetupUI extends JDialog {
         mainPanel.add(apiKeyCard);
         mainPanel.add(Box.createVerticalStrut(20));
         
-        // ========================================
         // TARJETA DE MODELO
-        // ========================================
         JPanel modelCard = createModernCard();
         
-        JLabel modelTitleLabel = new JLabel("🤖 Modelo de Claude");
+        JLabel modelTitleLabel = new JLabel("Modelo de Claude");
         modelTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         modelTitleLabel.setForeground(TEXT_PRIMARY);
         modelCard.add(modelTitleLabel);
@@ -215,13 +208,11 @@ public class ConfigSetupUI extends JDialog {
         
         mainPanel.add(modelCard);
         mainPanel.add(Box.createVerticalStrut(20));
-        
-        // ========================================
+
         // TARJETA DE MAX TOKENS
-        // ========================================
         JPanel tokensCard = createModernCard();
         
-        JLabel tokensTitleLabel = new JLabel("📊 Max Tokens por Respuesta");
+        JLabel tokensTitleLabel = new JLabel("Max Tokens por Respuesta");
         tokensTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tokensTitleLabel.setForeground(TEXT_PRIMARY);
         tokensCard.add(tokensTitleLabel);
@@ -242,9 +233,7 @@ public class ConfigSetupUI extends JDialog {
         mainPanel.add(tokensCard);
         mainPanel.add(Box.createVerticalStrut(25));
         
-        // ========================================
         // STATUS LABEL
-        // ========================================
         statusLabel = new JLabel(" ");
         statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -257,9 +246,7 @@ public class ConfigSetupUI extends JDialog {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
         
-        // ========================================
         // PANEL DE BOTONES
-        // ========================================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
         buttonPanel.setBackground(BACKGROUND);
         buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, BORDER_COLOR));
@@ -291,7 +278,7 @@ public class ConfigSetupUI extends JDialog {
             buttonPanel.add(cancelButton);
         }
         
-        saveButton = new JButton(isFirstTime ? "💾 Guardar y Comenzar" : "💾 Guardar Cambios");
+        saveButton = new JButton(isFirstTime ? " Guardar y Comenzar" : " Guardar Cambios");
         saveButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
         saveButton.setPreferredSize(new Dimension(isFirstTime ? 200 : 180, 42));
         saveButton.setBackground(PRIMARY_COLOR);
@@ -323,9 +310,7 @@ public class ConfigSetupUI extends JDialog {
         apiKeyField.addActionListener(e -> saveConfiguration());
     }
     
-    /**
-     * Crea una tarjeta moderna con sombra
-     */
+    //Crea una tarjeta moderna con sombra
     private JPanel createModernCard() {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -339,7 +324,7 @@ public class ConfigSetupUI extends JDialog {
         
         return card;
     }
-    
+    //No funcionan los emojis en los botones
     private void toggleApiKeyVisibility() {
         if (apiKeyField.getEchoChar() == (char) 0) {
             apiKeyField.setEchoChar('•');
@@ -371,7 +356,7 @@ public class ConfigSetupUI extends JDialog {
                     apiKeyField.setText(decrypted);
                 } catch (Exception e) {
                     apiKeyField.setText("");
-                    showStatus("⚠️ No se pudo cargar el API Key existente", ERROR_COLOR);
+                    showStatus("No se pudo cargar el API Key existente", ERROR_COLOR);
                 }
             }
             
@@ -397,28 +382,28 @@ public class ConfigSetupUI extends JDialog {
         
         // Validar API Key
         if (apiKey.isEmpty()) {
-            showStatus("❌ Debes ingresar un API Key", ERROR_COLOR);
+            showStatus("Debes ingresar un API Key", ERROR_COLOR);
             apiKeyField.requestFocus();
             return;
         }
         
         // Validar formato
         if (!apiKey.startsWith("sk-ant-api03-")) {
-            showStatus("❌ Formato inválido. Debe comenzar con: sk-ant-api03-", ERROR_COLOR);
+            showStatus("Formato inválido. Debe comenzar con: sk-ant-api03-", ERROR_COLOR);
             apiKeyField.requestFocus();
             return;
         }
         
         if (apiKey.length() < 30) {
-            showStatus("❌ API Key demasiado corto. Verifica que esté completo", ERROR_COLOR);
+            showStatus("API Key demasiado corto. Verifica que esté completo", ERROR_COLOR);
             apiKeyField.requestFocus();
             return;
         }
         
         // Deshabilitar controles mientras guarda
         setControlsEnabled(false);
-        saveButton.setText("🔐 Encriptando...");
-        showStatus("🔐 Encriptando y guardando configuración...", PRIMARY_COLOR);
+        saveButton.setText(" Encriptando...");
+        showStatus(" Encriptando y guardando configuración...", PRIMARY_COLOR);
         
         // Guardar en un worker para no bloquear la UI
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
@@ -465,7 +450,7 @@ public class ConfigSetupUI extends JDialog {
                     boolean success = get();
                     
                     if (success) {
-                        showStatus("✅ Configuración guardada correctamente", SUCCESS_COLOR);
+                        showStatus(" Configuración guardada correctamente", SUCCESS_COLOR);
                         
                         // Esperar 1.5 segundos y cerrar
                         Timer timer = new Timer(1500, e -> {
@@ -480,13 +465,13 @@ public class ConfigSetupUI extends JDialog {
                         timer.start();
                         
                     } else {
-                        showStatus("❌ Error: " + (errorMessage != null ? errorMessage : "desconocido"), ERROR_COLOR);
+                        showStatus(" Error: " + (errorMessage != null ? errorMessage : "desconocido"), ERROR_COLOR);
                         setControlsEnabled(true);
-                        saveButton.setText(isFirstTime ? "💾 Guardar y Comenzar" : "💾 Guardar Cambios");
+                        saveButton.setText(isFirstTime ? " Guardar y Comenzar" : " Guardar Cambios");
                     }
                     
                 } catch (Exception e) {
-                    showStatus("❌ Error inesperado: " + e.getMessage(), ERROR_COLOR);
+                    showStatus(" Error inesperado: " + e.getMessage(), ERROR_COLOR);
                     e.printStackTrace();
                 }
             }
@@ -510,7 +495,7 @@ public class ConfigSetupUI extends JDialog {
         statusLabel.setText(message);
         statusLabel.setForeground(color);
     }
-    
+    //ESTO YA LO HACE OTRO ARCHIVO, VER DE USARLO EN VEZ DE RECREAR LA FUNCION(ClaudeConfig.java)
     private void savePropertiesWithComments(File file, Properties props) throws IOException {
         StringBuilder content = new StringBuilder();
         boolean foundEncrypted = false;
@@ -561,7 +546,7 @@ public class ConfigSetupUI extends JDialog {
             writer.write(content.toString());
         }
     }
-    
+    //ESTO YA LO HACE OTRO ARCHIVO, VER DE USARLO EN VEZ DE RECREAR LA FUNCION(ClaudeConfig.java)
     private String generateMasterKey() {
         String userName = System.getProperty("user.name", "default");
         String osName = System.getProperty("os.name", "unknown");
