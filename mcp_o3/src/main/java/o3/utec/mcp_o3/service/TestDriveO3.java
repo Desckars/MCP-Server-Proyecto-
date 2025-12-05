@@ -14,8 +14,12 @@ import java.util.StringJoiner;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import o3.utec.mcp_o3.ProyectoIdeApplication;
+import o3.utec.mcp_o3.config.InjectInstrccion;
 
 @Service
 public class TestDriveO3 {
@@ -38,35 +42,21 @@ public class TestDriveO3 {
     @Value("${o3.server.memberByLabel}")
     private String o3MemberByLabel;
 
+    // Inyector de instrucciones en primera ejecución
+    @Autowired
+    private InjectInstrccion instructionsInjector;
 
     // Probare primer QUERY ya precargadas
-     private final SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
+    private final SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
     
     // Las consultas se mantienen tal cual las proporcionaste
     private final String[] queries = {
-         "SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS, {Customers.Customers.[Major Accounts]} ON ROWS FROM Demo WHERE Measures.Discount",
-         "SELECT NON EMPTY {Customers.[Major Accounts]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo WHERE Measures.[Units Sold]",
-         "SELECT {CubeInfo.LastModifiedDate} ON COLUMNS from Demo",
-         "SELECT NON ZERO {Location.children} ON ROWS, CROSSJOIN ({Salesmen.children}, {Customers.[Major Accounts]}) ON COLUMNS FROM Demo WHERE Measures.[Units Sold]",
-         "SELECT CrossJoin({[Date].[Date].children}, {[<measures>].[<measures>].[% Profit], [<measures>].[<measures>].[Revenue]}) ON COLUMNS, {{[Products].[Products].children}} ON ROWS FROM [Demo] WHERE ([Customers].[Customers],[Salesmen].[Salesmen],[Location].[Location])"
+        "SELECT {Measures.[Units Sold], Measures.[Cost]} ON COLUMNS, {Customers.Customers.[Major Accounts]} ON ROWS FROM Demo WHERE Measures.Discount",
+        "SELECT NON EMPTY {Customers.[Major Accounts]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM Demo WHERE Measures.[Units Sold]",
+        "SELECT {CubeInfo.LastModifiedDate} ON COLUMNS from Demo",
+        "SELECT NON ZERO {Location.children} ON ROWS, CROSSJOIN ({Salesmen.children}, {Customers.[Major Accounts]}) ON COLUMNS FROM Demo WHERE Measures.[Units Sold]",
+        "SELECT CrossJoin({[Date].[Date].children}, {[<measures>].[<measures>].[% Profit], [<measures>].[<measures>].[Revenue]}) ON COLUMNS, {{[Products].[Products].children}} ON ROWS FROM [Demo] WHERE ([Customers].[Customers],[Salesmen].[Salesmen],[Location].[Location])"
     };
-    /**
-     * Ejecuta todas las consultas MDX de prueba y retorna un resumen de los resultados.
-     * @return Una cadena de texto con la salida de todas las consultas.
-     */
-    // ========================================
-    // CONNECTION MANAGEMENT
-    // ========================================
-    
-    private Connection getO3Connection() throws Exception {
-        Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
-        Properties info = new Properties();
-        info.put("user", o3Username);
-        info.put("password", o3Password);
-        info.put("COLUMNS_TYPE", o3ColumnsType);
-        info.put("MEMBER_BY_LABEL", o3MemberByLabel);
-        return DriverManager.getConnection(o3ServerUrl, info);
-    }
      //----------------------------------------------------------------------------------------------------------------
     @Tool(description = "Ejecuta todas las consultas MDX de prueba y retorna los resultados de cada una.")
     public String runAllQueries() {
@@ -121,7 +111,23 @@ public class TestDriveO3 {
         }
         return queryResults.toString();
     }
-
+    //----------------------------------------------------------------------------------------------------------------
+    //System Prompt General
+    //Funcionara como un una tool haciendo que el LLM pueda acceder a este contenido cuando sea arranque el MCP
+    @Tool(description = "MANDATORY: Call this before using other tools for the first time."+
+                        "READ THIS FIRST! Returns comprehensive system instructions for using the MCP O3 Server correctly. " +
+                        "Contains important guidelines, MDX syntax rules, and best practices. " +
+                        "ALWAYS call this before using other tools for the first time.")
+    public String getSystemInstructions() {
+        String instructions = ProyectoIdeApplication.getsystemprompt();
+        if (instructions == null || instructions.isEmpty()) {
+            return "ERROR: System Prompt General no cargado.";
+        }
+        // Marcar como mostrado para evitar auto-inyección duplicada
+        instructionsInjector.checkAndInjectInstructions();
+        
+        return instructions;
+    }
     //----------------------------------------------------------------------------------------------------------------
     @Tool(description = """
         Execute a custom MDX query against the O3 cube server and return the results.
@@ -148,7 +154,7 @@ public class TestDriveO3 {
         6 - 'revenue for mountain bikes professional in US for years 2002 and 2003'
         SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE  (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
         7 - 'show all major accounts in France with units sold'
-       SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM   [CubeName] WHERE  (Measures.[Units Sold])
+        SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM   [CubeName] WHERE  (Measures.[Units Sold])
         8 - 'children members of salesmen with total number of children'
         SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
         9 - 'quey involvs 3 dimensions: products, locations y dates. 3 axis visualizacion is a bit complex and what is generaly requerid is to show this info following a bi-dimensional format encapsuling the 3 dimensions'
@@ -170,52 +176,9 @@ public class TestDriveO3 {
         16.'Returns dimensions of a specific cube' SELECT {Dimensions} ON COLUMNS FROM [CubeName] 
         17.'Returns measures of a specific cube' SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
         """)
-        /*
-        @Tool(description = """
-        Ejecuta una consulta MDX específica contra el cubo O3 y retorna los resultados formateados.
-        
-        PATRONES DE CONSULTA COMUNES:
-        1. Consulta simple por medida: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] 
-        2. Por dimensión: SELECT {Measures.[MeasureName]} ON COLUMNS, {[Dimension].children} ON ROWS FROM [CubeName] 
-        3. Múltiples medidas: SELECT {Measures.[MeasureName1], Measures.[MeasureName2]} ON COLUMNS FROM [CubeName]
-        4. Con filtro WHERE: SELECT {Measures.[MeasureName]} ON COLUMNS FROM [CubeName] WHERE Measures.[MeasureFilter]
-        5. NON EMPTY para omitir valores vacíos: SELECT NON EMPTY {[Dimension].children} ON ROWS FROM [CubeName]
-        6. CROSSJOIN para cruzar dimensiones: CROSSJOIN({[Dimension1].children}, {[Dimension2].[SpecificMember]})
-        7. Info del cubo: SELECT {CubeInfo.LastModifiedDate} ON COLUMNS FROM [CubeName]
-
-
-        EJEMPLOS DE INTERPRETACIÓN ( TOMA ESTO SOLO COMO REFERENCIA, NO LO TOMES COMO DATOS PARA CONSULTA, USA SOLO LOS CUBO QUE EL USUARIO TE SOLICITE ):
-        1 - 'mostrar ventas por ubicación' → SELECT {Measures.[Units Sold]} ON COLUMNS, NON EMPTY {Location.children} ON ROWS FROM [CubeName]
-        2 - 'costos y unidades para cuentas principales' → SELECT {Measures.[Cost], Measures.[Units Sold]} ON COLUMNS, {Customers.[Major Accounts]} ON ROWS FROM [CubeName]
-        3 - 'ingresos por producto' → SELECT {Measures.[Revenue]} ON COLUMNS, NON EMPTY {Products.children} ON ROWS FROM [CubeName]
-        4 - 'unidades vendidas en France sólo para los tipos de clientes Major Accounts y Minor Accounts.'
-        SELECT {Customers.[Major Accounts], Customers.[Minor Accounts]} ON COLUMNS, {Location.[France]} ON ROWS  FROM  [CubeName] WHERE  (Measures.[Units Sold])
-        5 - 'visión global del comportamiento de cada uno de los vendedores con respecto a las unidades vendidas y sus comisiones del modelo de ventas independientemente del resto de las dimensiones de análisis'
-        SELECT {Measures.[Units Sold], Measures.[Commissions]} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
-        6 - 'ver los ingresos (Revenue) por la venta de bicicletas Mountain bikes profesionales en los años 2002 y 2003 en US'
-        SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE  (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
-        7 - 'unidades vendidas en las distintas ciudades de France por parte de los clientes bajo el tipo denominado Major Accounts.'
-       SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM   [CubeName] WHERE  (Measures.[Units Sold])
-        8 - 'nos interesa estudiar por tal o cual medida sino por todas aquellas que se tengan definidas en el modelo de análisis.'
-        SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
-        9 - 'consulta involucra 3 dimensiones: productos, ubicaciones y fechas. La visualización usando 3 ejes es algo complejo y lo que en general se quiere es presentar esta información siguiendo el formato bi-dimensional y encapsular las 3 dimensiones.'
-        SELECT {Date.[2001], Date.[2002]} ON COLUMNS, {
-        (Location.[Brazil], Products.[Mountain Bikes].[Professional]),
-        (Location.[Brazil], Products.[Mountain Bikes].[Recreational]),
-        (Location.[Spain], Products.[Mountain Bikes].[Professional]),
-        (Location.[Spain], Products.[Mountain Bikes].[Recreational])
-        } ON ROWS FROM  [CubeName] WHERE (Measures.[Units Sold])
-        10 - 'MDX brinda la función CrossJoin(). Esta función produce todas las combinaciones de 2 conjuntos (es decir, un "producto cartesiano"). Su uso común es para situaciones como la presentada arriba combinando 2 o mas dimensiones en un único eje a los efectos de visualizar los datos bajo la forma de una matriz bi-dimensional'
-        SELECT {Date.[2001], Date.[2002]} ON COLUMNS, CrossJoin({Location.children}, {Products.[Mountain Bikes].children}) ON ROWS FROM  [CubeName] WHERE (Measures.[Units Sold])
-        11 - 'Supongamos que se desea ver la evolución en el tiempo salvo en el año 2002 de los costos por la venta de todas las líneas de bicicletas.'
-        SELECT except(Date.Year.Members, {Date.[2002]}) on COLUMNS, {Products.Line.Members} on ROWS FROM   [CubeName] WHERE  (Measures.[Cost])
-        12 - 'consultar cuales son las ciudades de Francia sin importar que valores tengan en sus medidas.'
-        SELECT {Location.[France].children} ON COLUMNS, {} ON ROWS FROM [CubeName]
-        13. 'Obtiene todas las ciudades de todas las ubicaciones.' SELECT {Measures.[Units Sold]} ON COLUMNS, Descendants(Location, Location.City) ON ROWS FROM [CubeName]
-        14.'Devuelve los elementos del primer conjunto que NO están en el segundo.' SELECT Except(Date.Year.Members, {Date.[2002]}) ON COLUMNS, {Products.Line.Members} ON ROWS FROM [CubeName] WHERE (Measures.[Cost])
-        """);
-        */
     public String executeCustomMdxQuery(@ToolParam(description = "Consulta MDX a ejecutar contra el cubo CubeName") String mdxQuery) {
+        // Agregar recordatorio si las instrucciones no se han visto
+        String reminder = instructionsInjector.getQuickReminder();
         try {
             Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
             String url = o3ServerUrl;
@@ -226,20 +189,21 @@ public class TestDriveO3 {
             info.put("MEMBER_BY_LABEL", o3MemberByLabel);
 
             try (Connection conn = DriverManager.getConnection(url, info)) {
-                return runQuery(conn, mdxQuery, null);
+                return reminder + runQuery(conn, mdxQuery, null);                
             }
         } catch (Exception e) {
             return "Error ejecutando consulta MDX: " + e.getMessage() + 
-                   "\nConsulta intentada: " + mdxQuery;
+                    "\nConsulta intentada: " + mdxQuery;
         }
     }
 
     //----------------------------------------------------------------------------------------------------------------
     @Tool(description = "Retrieves information about available cubes on the server, including their dimensions and measures. " +
-      "This is useful for building appropriate MDX queries for specific cubes.")
+        "This is useful for building appropriate MDX queries for specific cubes.")
         public String getCubeInformation(@ToolParam(description = "Name of the cube to analyze. Use null to list all available cubes.") 
         String cubeName) {
-            
+            // AUTO-INJECT: Cargar instrucciones en la primera llamada
+            String autoLoadedInstructions = instructionsInjector.checkAndInjectInstructions();
             try {
                 Class.forName("com.ideasoft.o3.jdbc.thin.client.O3ThinDriver");
                 String url = o3ServerUrl;
@@ -250,12 +214,15 @@ public class TestDriveO3 {
                 info.put("MEMBER_BY_LABEL", o3MemberByLabel);
 
                 try (Connection conn = DriverManager.getConnection(url, info)) {
+                    String result;
                     if (cubeName == null || cubeName.trim().isEmpty() || cubeName.equalsIgnoreCase("null")) {
-                        return listAvailableCubes(conn);
+                        result = listAvailableCubes(conn);
                     } else {
-                        return getCubeStructure(conn, cubeName.trim());
+                        result = getCubeStructure(conn, cubeName.trim());
                     }
+                    return autoLoadedInstructions + result;
                 }
+                
             } catch (Exception e) {
                 return "Error retrieving cube information: " + e.getMessage();
             }
@@ -348,6 +315,5 @@ public class TestDriveO3 {
         
         return result.toString();
     }
-    //----------------------------------------------------------------------------------------------------------------
-
+    
 }
