@@ -1,0 +1,5 @@
+# Directorio de compilación
+target/
+# ⚠️ CRÍTICO: No subir API Keys
+src/main/resources/config.properties
+config.properties
