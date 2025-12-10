@@ -154,6 +154,8 @@ public class TestDriveO3 {
         6 - 'revenue for mountain bikes professional in US for years 2002 and 2003'
         SELECT {Date.Date.[2002], Date.Date.[2003]} ON COLUMNS, {Location.[US]} ON ROWS FROM [CubeName] WHERE  (Products.[Mountain Bikes].[Professional], Measures.[Revenue])
         7 - 'show all major accounts in France with units sold'
+        7 - 1 - SELECT {Date.children} ON COLUMNS FROM [CubeName] 
+
         SELECT {Customers.[Major Accounts].children} ON COLUMNS, {Location.[France].children} ON ROWS FROM   [CubeName] WHERE  (Measures.[Units Sold])
         8 - 'children members of salesmen with total number of children'
         SELECT {Measures.children} ON COLUMNS, {Salesmen.Seller.members} ON ROWS FROM [CubeName]
