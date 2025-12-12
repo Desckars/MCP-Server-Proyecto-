@@ -177,6 +177,16 @@ public class TestDriveO3 {
         15.'Returns available cubes in the server ' SELECT {Cubes} ON COLUMNS FROM SYSCATALOG
         16.'Returns dimensions of a specific cube' SELECT {Dimensions} ON COLUMNS FROM [CubeName] 
         17.'Returns measures of a specific cube' SELECT {Measures.Members} ON COLUMNS FROM [CubeName]
+        18.'Using the function Descendants you can obtain ALL members in a specific level from a dimension.
+        Descendants(<Set>, <Level> [, <Desc_Flag>]), Where:
+            <Set>: The set of members from where you want to "descend"
+            <Level>: The level you want to reach.
+            <Desc_Flag> (opcional): Flags that control the result
+        Example: Descendants(Date, Date.Month)
+        ¿What does it do?
+            Takes the date dimension as a whole (from the root, including every year)
+            Descends to the Month level
+            Returns every month from every year.
         """)
     public String executeCustomMdxQuery(@ToolParam(description = "Consulta MDX a ejecutar contra el cubo CubeName") String mdxQuery) {
         // Agregar recordatorio si las instrucciones no se han visto
