@@ -10,7 +10,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
-import o3.utec.mcp_o3.service.TestDriveO3;
+import o3.utec.mcp_o3.service.MCPCore;
 @SpringBootApplication
 public class ProyectoIdeApplication {
 
@@ -39,7 +39,7 @@ public class ProyectoIdeApplication {
 	// Aquí registramos TestDriveO3 como herramientas disponibles.
 	// También podríamos registrar herramientas individuales si quisiéramos.
 	@Bean
-	public ToolCallbackProvider Tools( TestDriveO3 testDriveO3) {
+	public ToolCallbackProvider Tools( MCPCore testDriveO3) {
 		return MethodToolCallbackProvider.builder().toolObjects(testDriveO3).build();
 	}
 

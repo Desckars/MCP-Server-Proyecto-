@@ -22,7 +22,7 @@ import o3.utec.mcp_o3.ProyectoIdeApplication;
 import o3.utec.mcp_o3.config.InjectInstrccion;
 
 @Service
-public class TestDriveO3 {
+public class MCPCore {
     // Configuraciones de conexión
     // La logica es la siguiente:
     // Busca la propiedad o3.server.username. Si NO la encuentras, usa user como valor por defecto (o3.server.username:user).
