@@ -13,6 +13,7 @@ Abrimos el archivo claude_desktop_config.json.
 En el json agregamos lo siguiente:
 
 "MCP_O3_Server": {
+
       "command": "java",
       "args": [
       "-Dspring.ai.mcp.server.stdio=true",
