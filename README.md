@@ -11,18 +11,17 @@ Seleccionamos la opción de Desarrollador y le damos a Editar Configuración.
 Se nos mostrará en pantalla  la carpeta de Claude.
 Abrimos el archivo claude_desktop_config.json.
 En el json agregamos lo siguiente:
+
 "MCP_O3_Server": {
       "command": "java",
       "args": [
       "-Dspring.ai.mcp.server.stdio=true",
       "-Dspring.main.banner-mode=off",
-      
       "-Do3.server.url=jdbc:o3:mdx://localhost:7777",
       "-Do3.server.username=user",
       "-Do3.server.password=user",
       "-Do3.server.columnsType=DIMENSION_LABEL",
       "-Do3.server.memberByLabel=true",
-
       "-jar",
         "Ubicacion del /mcp_o3-0.0.3-SNAPSHOT.jar"
       ]
